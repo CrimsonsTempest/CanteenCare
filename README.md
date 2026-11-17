@@ -53,7 +53,34 @@ _TODO (Phase 4)._ Emulator dan HP fisik lewat Wi‑Fi.
 
 ## Setup Firebase
 
-_TODO (Phase 3)._
+Firebase dipakai hanya untuk push notification (FCM). Tanpa Firebase pun backend tetap berjalan, hanya notifikasinya yang tidak terkirim.
+
+**A. Membuat project Firebase**
+
+1. Buka https://console.firebase.google.com dan login dengan akun Google.
+2. Klik **Create a project** atau **Add project**, beri nama `CanteenCare`, lalu lanjutkan.
+3. Google Analytics boleh dimatikan, karena tidak dipakai. Klik **Create project** dan tunggu sampai selesai.
+
+**B. Mendaftarkan aplikasi Android**
+
+1. Di halaman project, klik ikon **Android** untuk menambah aplikasi.
+2. Isi **Android package name** dengan `com.kelompok10.canteencare`, persis tanpa salah ketik. Nickname boleh `CanteenCare`, SHA-1 boleh dikosongkan.
+3. Klik **Register app**, lalu **Download google-services.json**.
+4. Simpan file itu di tempat aman. Setelah project Android dibuat, file ini dipindahkan ke `android/app/google-services.json`.
+5. Langkah tambahan tentang Gradle di wizard boleh dilewati dengan **Next** sampai selesai. Bagian itu dikerjakan saat setup Android.
+
+**C. Kunci service account untuk backend**
+
+1. Klik ikon gerigi di kiri atas → **Project settings** → tab **Service accounts**.
+2. Pastikan pilihan **Firebase Admin SDK** aktif, lalu klik **Generate new private key** → **Generate key**. Sebuah file `.json` akan terunduh.
+3. Ganti nama file itu menjadi `firebase-service-account.json` dan pindahkan ke folder `backend/`.
+4. Restart server backend. Di log harus muncul `Firebase siap, notifikasi aktif.`
+
+**D. Pastikan Cloud Messaging aktif**
+
+Di **Project settings** → tab **Cloud Messaging**, bagian **Firebase Cloud Messaging API (V1)** harus berstatus **Enabled**. Untuk project baru, biasanya sudah aktif otomatis.
+
+> **Penting:** `firebase-service-account.json` adalah kunci rahasia yang memberi akses penuh ke project Firebase. File ini dan `google-services.json` sudah masuk `.gitignore`, jadi jangan pernah diunggah ke GitHub. Teman satu tim perlu meminta kedua file ini langsung kepadamu.
 
 ## Akun Demo
 

@@ -1,19 +1,19 @@
 from datetime import date
 
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, BackgroundTasks, Query, status
 
 from app.core.deps import BuyerUser, CurrentUser, DbSession
 from app.core.errors import AppError
 from app.models import Order, User
 from app.models.enums import OrderStatus, Role
 from app.schemas.order import OrderCreate, OrderOut
-from app.services import order_service
+from app.services import notification_service, order_service
 
 router = APIRouter(tags=["Pesanan (Pembeli)"])
 
 
 @router.post("/orders", response_model=OrderOut, status_code=status.HTTP_201_CREATED, summary="Buat pesanan")
-def create_order(body: OrderCreate, db: DbSession, buyer: BuyerUser) -> OrderOut:
+def create_order(body: OrderCreate, db: DbSession, buyer: BuyerUser, background: BackgroundTasks) -> OrderOut:
     order = order_service.create_order(
         db,
         buyer=buyer,
@@ -22,6 +22,8 @@ def create_order(body: OrderCreate, db: DbSession, buyer: BuyerUser) -> OrderOut
         note=body.note,
         items=[(item.menu_id, item.quantity) for item in body.items],
     )
+    # Notifikasi dikirim setelah respons terkirim, jadi tidak memperlambat pembeli
+    background.add_task(notification_service.notify_new_order, order.id)
     return OrderOut.from_order(order)
 
 

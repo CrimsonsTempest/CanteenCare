@@ -10,6 +10,7 @@ from app.core.errors import register_error_handlers
 from app.db import Base, SessionLocal, engine
 from app.routers import admin, auth, catalog, nutrition_target, orders, seller
 from app.seed import seed_if_empty
+from app.services import notification_service
 
 API_PREFIX = "/api/v1"
 
@@ -22,6 +23,8 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     Base.metadata.create_all(engine)
     with SessionLocal() as db:
         seed_if_empty(db)
+    # Cek kredensial Firebase sejak awal supaya peringatannya langsung terlihat di log
+    notification_service.init_firebase()
     yield
 
 

@@ -59,6 +59,17 @@ Semua dari Swagger. Tip: buka dua tab Swagger, satu untuk pembeli dan satu untuk
 10. Jalankan confirm sekali lagi → 409 `INVALID_ORDER_STATE`, karena status akhir tidak bisa diubah.
 11. Login lagi sebagai Daffa, lalu `GET /api/v1/orders/{order_id}` → status `DIKONFIRMASI`.
 
+## Notifikasi (FCM)
+
+Taruh kunci service account Firebase di `backend/firebase-service-account.json`. Cara mendapatkannya ada di README utama, bagian Setup Firebase. Tanpa file ini server tetap berjalan, hanya mencatat peringatan `Notifikasi dinonaktifkan`.
+
+Notifikasi dikirim otomatis pada tiga kejadian berikut:
+- **Pesanan baru:** dikirim ke penjual, dengan data `{"type": "NEW_ORDER", "order_id": "..."}`.
+- **Pesanan dikonfirmasi:** dikirim ke pembeli, dengan data `{"type": "ORDER_STATUS", "order_id": "..."}`.
+- **Pesanan ditolak:** dikirim ke pembeli beserta alasannya, dengan data `{"type": "ORDER_STATUS", "order_id": "..."}`.
+
+Notifikasi hanya terkirim ke user yang sudah mengirim token lewat `PUT /api/v1/users/me/fcm-token`. Aplikasi Android melakukannya otomatis setelah login. Kalau pengiriman gagal, request tetap berhasil, dan token yang sudah tidak berlaku akan dihapus.
+
 ## Menjalankan tes
 
 ```
@@ -81,6 +92,6 @@ Tes memakai database sementara yang terpisah, jadi `canteencare.db` tidak tersen
 | `app/models/` | Tabel database, satu file per tabel |
 | `app/schemas/` | Model request dan response Pydantic |
 | `app/routers/` | Endpoint API |
-| `app/services/` | Logika bisnis, misalnya perhitungan total pesanan |
+| `app/services/` | Logika bisnis: `order_service` untuk pesanan dan stok, `notification_service` untuk FCM |
 | `app/seed.py` | Data demo |
 | `tests/` | Tes pytest |

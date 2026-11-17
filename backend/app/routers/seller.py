@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, BackgroundTasks, Query, status
 from sqlalchemy import select
 
 from app.core.deps import DbSession, SellerUser
@@ -7,7 +7,7 @@ from app.models import Menu, Nutrition, Order, User, Vendor
 from app.models.enums import MenuStatus, OrderStatus
 from app.schemas.catalog import MenuCreate, MenuOut, StockUpdate
 from app.schemas.order import OrderOut, RejectRequest
-from app.services import order_service
+from app.services import notification_service, order_service
 
 router = APIRouter(prefix="/seller", tags=["Penjual"])
 
@@ -44,14 +44,18 @@ def list_orders(
 
 
 @router.post("/orders/{order_id}/confirm", response_model=OrderOut, summary="Konfirmasi pesanan (stok berkurang)")
-def confirm_order(order_id: int, db: DbSession, seller: SellerUser) -> OrderOut:
+def confirm_order(order_id: int, db: DbSession, seller: SellerUser, background: BackgroundTasks) -> OrderOut:
     order = order_service.confirm_order(db, _own_order(db, seller, order_id))
+    background.add_task(notification_service.notify_order_confirmed, order.id)
     return OrderOut.from_order(order)
 
 
 @router.post("/orders/{order_id}/reject", response_model=OrderOut, summary="Tolak pesanan (stok tetap)")
-def reject_order(order_id: int, body: RejectRequest, db: DbSession, seller: SellerUser) -> OrderOut:
+def reject_order(
+    order_id: int, body: RejectRequest, db: DbSession, seller: SellerUser, background: BackgroundTasks
+) -> OrderOut:
     order = order_service.reject_order(db, _own_order(db, seller, order_id), body.reason.strip())
+    background.add_task(notification_service.notify_order_rejected, order.id)
     return OrderOut.from_order(order)
 
 
