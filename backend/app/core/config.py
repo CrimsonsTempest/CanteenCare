@@ -1,0 +1,21 @@
+from functools import lru_cache
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    """Konfigurasi aplikasi, dibaca dari environment variable atau file .env."""
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    # Wajib diisi di .env, tidak ada nilai default agar tidak ada secret yang di-hardcode.
+    SECRET_KEY: str
+    TOKEN_EXPIRE_DAYS: int = 7
+    DATABASE_URL: str = "sqlite:///./canteencare.db"
+    FIREBASE_CREDENTIALS: str = "firebase-service-account.json"
+    TIMEZONE: str = "Asia/Jakarta"
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()

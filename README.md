@@ -34,11 +34,18 @@ CanteenCare/
 
 ## Menjalankan Backend
 
-_TODO (Phase 1)._ Perintah utama:
+Langkah lengkap ada di [backend/README.md](backend/README.md). Ringkasnya:
 
 ```
+cd backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+copy .env.example .env
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
+
+Swagger UI tersedia di http://localhost:8000/docs.
 
 ## Menjalankan Aplikasi Android
 

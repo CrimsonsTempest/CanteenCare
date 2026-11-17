@@ -1,0 +1,13 @@
+fastapi==0.163.1
+uvicorn[standard]==0.54.0
+SQLAlchemy==2.1.9
+pydantic[email]==2.14.3
+pydantic-settings==2.16.3
+bcrypt==5.0.0
+PyJWT==2.15.1
+# Database zona waktu untuk Windows (zoneinfo butuh ini agar Asia/Jakarta dikenali)
+tzdata==2026.6
+
+# Testing
+pytest==9.2.0
+httpx2==2.16.2
