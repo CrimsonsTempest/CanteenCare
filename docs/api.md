@@ -15,11 +15,11 @@ Semua error memakai bentuk yang sama:
 
 | HTTP | Kapan | Contoh `code` |
 |---|---|---|
-| 400 | Request tidak valid secara logika | `EMPTY_ITEMS`, `DUPLICATE_MENU` |
+| 400 | Request tidak valid secara logika | `EMPTY_ITEMS`, `DUPLICATE_MENU`, `MENU_NOT_AVAILABLE` |
 | 401 | Token tidak ada atau salah, login gagal | `UNAUTHORIZED`, `INVALID_CREDENTIALS` |
 | 403 | Role tidak sesuai | `FORBIDDEN_ROLE` |
 | 404 | Data tidak ada atau milik user lain | `NOT_FOUND` |
-| 409 | Konflik state atau data | `EMAIL_EXISTS`, `INSUFFICIENT_STOCK`, `INVALID_ORDER_STATE`, `NUTRITION_NOT_VERIFIED` |
+| 409 | Konflik state atau data | `EMAIL_EXISTS`, `INSUFFICIENT_STOCK`, `INVALID_ORDER_STATE`, `NUTRITION_NOT_VERIFIED`, `INVALID_MENU_STATE` |
 | 422 | Validasi field gagal | `VALIDATION_ERROR` |
 
 ## Auth
@@ -97,7 +97,7 @@ Body/respons: `target_calories, target_carbs, target_protein, target_fat, target
 | POST | `/seller/orders/{id}/confirm` | Hanya dari MENUNGGU. Cek ulang dan kurangi stok secara atomik. Jadi DIKONFIRMASI. Kirim FCM ke pembeli |
 | POST | `/seller/orders/{id}/reject` | Body `reason`. Hanya dari MENUNGGU. Jadi DITOLAK, stok tidak berubah. Kirim FCM ke pembeli |
 | GET | `/seller/menus` | Semua menu milik sendiri, semua status |
-| POST | `/seller/menus` | Ajukan menu baru dengan estimasi gizi. Status PENDING |
+| POST | `/seller/menus` | Ajukan menu baru dengan estimasi gizi. Body `name, description?, category, price, stock, image_url?, nutrition{6 nilai}`. Status PENDING |
 | PATCH | `/seller/menus/{id}/stock` | Body `stock` ≥ 0 |
 | DELETE | `/seller/menus/{id}` | Arsipkan: status ARCHIVED, tidak pernah dihapus permanen |
 
@@ -105,13 +105,15 @@ Body/respons: `target_calories, target_carbs, target_protein, target_fat, target
 
 | Method | Path | Keterangan |
 |---|---|---|
-| POST | `/admin/sellers` | Buat akun PENJUAL beserta stannya dalam satu request |
+| POST | `/admin/sellers` | Buat akun PENJUAL beserta stannya. Body `full_name, email, password, vendor_name, vendor_description?, vendor_image_url?, open_hours?` |
 | GET | `/admin/sellers` | Daftar penjual beserta stan |
 | GET | `/admin/menus` | Semua menu, opsional `?status=` |
 | PUT | `/admin/menus/{id}` | Ubah name, description, category, price, image_url |
 | PUT | `/admin/menus/{id}/nutrition` | Isi enam nilai gizi, `verified_by` = admin |
 | POST | `/admin/menus/{id}/approve` | Butuh gizi terverifikasi, jika belum 409 `NUTRITION_NOT_VERIFIED`. Jadi APPROVED |
 | POST | `/admin/menus/{id}/reject` | Jadi REJECTED |
+
+Menu berstatus ARCHIVED tidak bisa disetujui atau ditolak (409 `INVALID_MENU_STATE`).
 
 ## Dev
 

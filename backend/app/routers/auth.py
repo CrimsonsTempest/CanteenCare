@@ -6,7 +6,8 @@ from app.core.errors import AppError
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models import NutritionTarget, User
 from app.models.enums import Role
-from app.schemas.auth import FcmTokenRequest, LoginRequest, MessageResponse, RegisterRequest, TokenResponse, UserOut
+from app.schemas.auth import FcmTokenRequest, LoginRequest, RegisterRequest, TokenResponse, UserOut
+from app.schemas.common import MessageResponse
 
 router = APIRouter(tags=["Auth"])
 

@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app import models  # noqa: F401  (memastikan semua tabel terdaftar di Base.metadata)
 from app.core.errors import register_error_handlers
 from app.db import Base, SessionLocal, engine
-from app.routers import auth
+from app.routers import admin, auth, catalog, nutrition_target, orders, seller
 from app.seed import seed_if_empty
 
 API_PREFIX = "/api/v1"
@@ -35,7 +35,12 @@ def create_app() -> FastAPI:
     # Untuk pengembangan lokal semua origin diizinkan
     app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
     register_error_handlers(app)
-    app.include_router(auth.router, prefix=API_PREFIX)
+    routers = (
+        auth.router, catalog.router, orders.router, nutrition_target.router,
+        seller.router, admin.router, admin.dev_router,
+    )
+    for router in routers:
+        app.include_router(router, prefix=API_PREFIX)
     return app
 
 

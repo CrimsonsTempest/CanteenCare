@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     # Wajib diisi di .env, tidak ada nilai default agar tidak ada secret yang di-hardcode.
     SECRET_KEY: str
     TOKEN_EXPIRE_DAYS: int = 7
+    # Semakin besar semakin aman tapi lambat. Tes memakai nilai kecil agar cepat.
+    BCRYPT_ROUNDS: int = 12
     DATABASE_URL: str = "sqlite:///./canteencare.db"
     FIREBASE_CREDENTIALS: str = "firebase-service-account.json"
     TIMEZONE: str = "Asia/Jakarta"

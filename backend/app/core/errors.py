@@ -51,7 +51,9 @@ def _validation_message(error: dict) -> str:
     # loc contoh: ("body", "password") → ambil nama field terakhir yang berupa teks
     field = next((str(part) for part in reversed(error["loc"]) if isinstance(part, str)), "data")
     template = _VALIDATION_MESSAGES.get(error["type"], "tidak valid")
-    return f"Field {field} {template.format(**error.get('ctx', {}))}."
+    # Tampilkan 0.0 sebagai 0 supaya pesan lebih enak dibaca
+    ctx = {k: int(v) if isinstance(v, float) and v.is_integer() else v for k, v in error.get("ctx", {}).items()}
+    return f"Field {field} {template.format(**ctx)}."
 
 
 def register_error_handlers(app: FastAPI) -> None:

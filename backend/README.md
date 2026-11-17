@@ -22,9 +22,10 @@ python -c "import secrets; print(secrets.token_hex(32))"
 ## Menjalankan server
 
 ```
-.venv\Scripts\activate
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+.venv\Scripts\python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
+
+Perintah di atas memanggil Python dari venv secara langsung, jadi tidak perlu aktivasi venv. Ini juga menghindari masalah ketika `python` di Windows mengarah ke pintasan Microsoft Store.
 
 - Swagger UI: http://localhost:8000/docs
 - `--host 0.0.0.0` diperlukan supaya HP di Wi‑Fi yang sama bisa mengakses laptop.
@@ -38,11 +39,30 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 3. Klik tombol **Authorize** di kanan atas, tempel token, lalu **Authorize**.
 4. Sekarang endpoint lain seperti `GET /api/v1/auth/me` bisa dicoba.
 
+## Walkthrough: pembeli pesan → penjual konfirmasi → stok berkurang
+
+Semua dari Swagger. Tip: buka dua tab Swagger, satu untuk pembeli dan satu untuk penjual, supaya tidak perlu ganti token.
+
+1. Opsional, untuk mulai dari data bersih: login `admin@canteencare.id` / `admin123`, Authorize, lalu jalankan `POST /api/v1/admin/dev/reset-demo`.
+2. Login sebagai pembeli `daffa@student.ub.ac.id` / `pembeli123`, lalu Authorize dengan tokennya.
+3. `GET /api/v1/vendors/1/menus` → catat `stock` Mie Ayam Solo (id 1), awalnya 25.
+4. `POST /api/v1/orders` dengan body:
+   ```json
+   { "vendor_id": 1, "payment_method": "TUNAI", "items": [{ "menu_id": 1, "quantity": 2 }, { "menu_id": 4, "quantity": 1 }] }
+   ```
+   Respons berstatus `MENUNGGU`, `total_price` 44000. Catat `id` pesanannya.
+5. `GET /api/v1/menus/1` → stok masih 25, karena stok baru berkurang saat penjual mengonfirmasi.
+6. Klik Authorize → Logout, lalu login sebagai penjual `gapura@canteencare.id` / `penjual123` dan Authorize.
+7. `GET /api/v1/seller/orders?status=MENUNGGU` → pesanan tadi muncul.
+8. `POST /api/v1/seller/orders/{order_id}/confirm` → status `DIKONFIRMASI` dan `resolved_at` terisi.
+9. `GET /api/v1/seller/menus` → stok Mie Ayam Solo sekarang 23.
+10. Jalankan confirm sekali lagi → 409 `INVALID_ORDER_STATE`, karena status akhir tidak bisa diubah.
+11. Login lagi sebagai Daffa, lalu `GET /api/v1/orders/{order_id}` → status `DIKONFIRMASI`.
+
 ## Menjalankan tes
 
 ```
-.venv\Scripts\activate
-python -m pytest -q
+.venv\Scripts\python -m pytest -q
 ```
 
 Tes memakai database sementara yang terpisah, jadi `canteencare.db` tidak tersentuh.

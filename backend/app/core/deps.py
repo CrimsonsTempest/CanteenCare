@@ -51,3 +51,9 @@ def require_role(*roles: Role) -> Callable[[User], User]:
         return user
 
     return checker
+
+
+# Alias siap pakai di router, contoh: `def endpoint(user: BuyerUser): ...`
+BuyerUser = Annotated[User, Depends(require_role(Role.PEMBELI))]
+SellerUser = Annotated[User, Depends(require_role(Role.PENJUAL))]
+AdminUser = Annotated[User, Depends(require_role(Role.ADMIN))]

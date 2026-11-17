@@ -74,6 +74,3 @@ class FcmTokenRequest(BaseModel):
 
     fcm_token: str = Field(min_length=1, max_length=512)
 
-
-class MessageResponse(BaseModel):
-    message: str

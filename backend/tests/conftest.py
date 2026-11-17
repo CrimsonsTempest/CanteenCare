@@ -9,6 +9,7 @@ import pytest
 _TEST_DB = Path(tempfile.mkdtemp()) / "test.db"
 os.environ["DATABASE_URL"] = f"sqlite:///{_TEST_DB.as_posix()}"
 os.environ["SECRET_KEY"] = "test-secret-key-yang-cukup-panjang-untuk-hs256"
+os.environ["BCRYPT_ROUNDS"] = "4"
 
 from fastapi.testclient import TestClient  # noqa: E402
 
@@ -22,6 +23,14 @@ def client() -> TestClient:
     reset_database()
     with TestClient(app) as test_client:
         yield test_client
+
+
+# Akun demo dari seed: (email, password)
+DAFFA = ("daffa@student.ub.ac.id", "pembeli123")
+RAFAEL = ("rafael@student.ub.ac.id", "pembeli123")
+GAPURA = ("gapura@canteencare.id", "penjual123")
+BUSRI = ("busri@canteencare.id", "penjual123")
+ADMIN = ("admin@canteencare.id", "admin123")
 
 
 def login(client: TestClient, email: str, password: str) -> dict[str, str]:
