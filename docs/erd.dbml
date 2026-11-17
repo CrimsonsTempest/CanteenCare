@@ -1,0 +1,105 @@
+// CanteenCare — desain database
+// Bisa divisualisasikan di https://dbdiagram.io
+// Semua datetime disimpan dalam UTC (timezone-aware).
+
+Project CanteenCare {
+  database_type: 'SQLite'
+}
+
+Table users {
+  id int [pk, increment]
+  full_name varchar [not null]
+  email varchar [not null, unique, note: 'disimpan lowercase']
+  password_hash varchar [not null]
+  role varchar [not null, note: 'PEMBELI | PENJUAL | ADMIN']
+  fcm_token varchar [null]
+  created_at datetime [not null, default: `now()`]
+}
+
+Table vendors {
+  id int [pk, increment]
+  owner_id int [not null, unique, ref: - users.id, note: 'satu penjual = satu stan']
+  name varchar [not null]
+  description varchar [null]
+  image_url varchar [null]
+  open_hours varchar [null, note: 'contoh: 07.00 - 16.00']
+  is_active boolean [not null, default: true, note: 'stan nonaktif disembunyikan dari pembeli']
+  created_at datetime [not null, default: `now()`]
+}
+
+Table menus {
+  id int [pk, increment]
+  vendor_id int [not null, ref: > vendors.id]
+  name varchar [not null]
+  description varchar [null]
+  category varchar [not null, note: 'MAKANAN | MINUMAN']
+  price int [not null, note: 'rupiah, >= 0']
+  stock int [not null, note: '>= 0']
+  image_url varchar [null]
+  status varchar [not null, default: 'PENDING', note: 'PENDING | APPROVED | REJECTED | ARCHIVED; hanya APPROVED terlihat pembeli']
+  updated_at datetime [not null, note: 'auto update']
+}
+
+Table nutritions {
+  id int [pk, increment]
+  menu_id int [not null, unique, ref: - menus.id]
+  calories float [not null, note: 'kkal per porsi']
+  carbs float [not null, note: 'g per porsi']
+  protein float [not null, note: 'g per porsi']
+  fat float [not null, note: 'g per porsi']
+  salt float [not null, note: 'mg natrium per porsi']
+  sugar float [not null, note: 'g per porsi']
+  verified_by int [null, ref: > users.id, note: 'admin yang memverifikasi; null = belum terverifikasi']
+  updated_at datetime [not null]
+}
+
+Table orders {
+  id int [pk, increment]
+  order_number varchar [not null, unique, note: 'CC-YYYYMMDD-XXXX, tanggal WIB, XXXX hex acak huruf besar']
+  buyer_id int [not null, ref: > users.id]
+  vendor_id int [not null, ref: > vendors.id]
+  status varchar [not null, default: 'MENUNGGU', note: 'MENUNGGU | DIKONFIRMASI | DITOLAK']
+  payment_method varchar [not null, note: 'TUNAI | QRIS (simulasi)']
+  total_price int [not null]
+  total_calories float [not null]
+  total_carbs float [not null]
+  total_protein float [not null]
+  total_fat float [not null]
+  total_salt float [not null]
+  total_sugar float [not null]
+  note varchar [null, note: 'catatan pembeli untuk penjual']
+  rejection_reason varchar [null]
+  created_at datetime [not null, default: `now()`]
+  resolved_at datetime [null, note: 'diisi saat dikonfirmasi atau ditolak']
+}
+
+Table order_items {
+  id int [pk, increment]
+  order_id int [not null, ref: > orders.id]
+  menu_id int [not null, ref: > menus.id]
+  menu_name varchar [not null, note: 'snapshot']
+  unit_price int [not null, note: 'snapshot']
+  quantity int [not null, note: '>= 1']
+  calories float [not null, note: 'snapshot per porsi']
+  carbs float [not null]
+  protein float [not null]
+  fat float [not null]
+  salt float [not null]
+  sugar float [not null]
+
+  Note: 'Snapshot nama, harga, dan gizi saat pesanan dibuat, agar riwayat tidak berubah ketika menu diedit.'
+}
+
+Table nutrition_targets {
+  id int [pk, increment]
+  user_id int [not null, unique, ref: - users.id]
+  target_calories float [not null, default: 2150, note: 'GOAL']
+  target_carbs float [not null, default: 325, note: 'GOAL']
+  target_protein float [not null, default: 60, note: 'GOAL']
+  target_fat float [not null, default: 67, note: 'LIMIT']
+  target_salt float [not null, default: 2000, note: 'LIMIT, mg']
+  target_sugar float [not null, default: 50, note: 'LIMIT']
+  updated_at datetime [not null]
+
+  Note: 'Dibuat otomatis saat pembeli registrasi. Semua nilai harus > 0.'
+}
