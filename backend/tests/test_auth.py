@@ -5,7 +5,7 @@ from app.db import SessionLocal
 from app.models import NutritionTarget, Order, User
 from app.models.enums import OrderStatus
 from app.models.nutrition_target import DEFAULT_TARGETS
-from tests.conftest import login
+from tests.conftest import DAFFA, GAPURA, login
 
 API = "/api/v1"
 
@@ -117,6 +117,20 @@ def test_fcm_token_is_saved(client):
     with SessionLocal() as db:
         user = db.scalar(select(User).where(User.email == "daffa@student.ub.ac.id"))
         assert user.fcm_token == "abc123"
+
+
+def test_fcm_token_moves_to_latest_account_on_same_device(client):
+    # HP yang sama dipakai login Daffa, lalu logout dan login sebagai Gapura
+    client.put(f"{API}/users/me/fcm-token", headers=login(client, *DAFFA), json={"fcm_token": "hp-bersama"})
+    client.put(f"{API}/users/me/fcm-token", headers=login(client, *GAPURA), json={"fcm_token": "hp-bersama"})
+
+    assert _fcm_token("daffa@student.ub.ac.id") is None
+    assert _fcm_token("gapura@canteencare.id") == "hp-bersama"
+
+
+def _fcm_token(email: str) -> str | None:
+    with SessionLocal() as db:
+        return db.scalar(select(User.fcm_token).where(User.email == email))
 
 
 def test_seed_creates_sample_orders_with_recomputed_totals(client):

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from app.core.deps import CurrentUser, DbSession
 from app.core.errors import AppError
@@ -55,6 +55,11 @@ def me(user: CurrentUser) -> UserOut:
 
 @router.put("/users/me/fcm-token", response_model=MessageResponse, summary="Simpan token FCM perangkat")
 def update_fcm_token(body: FcmTokenRequest, user: CurrentUser, db: DbSession) -> MessageResponse:
+    # Satu HP hanya untuk satu akun yang sedang login: jika token ini sebelumnya milik akun lain
+    # (misalnya HP dipakai bergantian), akun lain itu tidak boleh lagi menerima notifikasinya.
+    db.execute(
+        update(User).where(User.fcm_token == body.fcm_token, User.id != user.id).values(fcm_token=None)
+    )
     user.fcm_token = body.fcm_token
     db.commit()
     return MessageResponse(message="Token notifikasi tersimpan.")
