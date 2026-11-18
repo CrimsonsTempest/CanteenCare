@@ -6,6 +6,7 @@ import com.kelompok10.canteencare.data.remote.dto.FcmTokenRequestDto
 import com.kelompok10.canteencare.data.remote.dto.LoginRequestDto
 import com.kelompok10.canteencare.data.remote.dto.MenuDto
 import com.kelompok10.canteencare.data.remote.dto.MessageDto
+import com.kelompok10.canteencare.data.remote.dto.NutritionTargetDto
 import com.kelompok10.canteencare.data.remote.dto.OrderDto
 import com.kelompok10.canteencare.data.remote.dto.RegisterRequestDto
 import com.kelompok10.canteencare.data.remote.dto.UserDto
@@ -54,9 +55,20 @@ interface ApiService {
     @POST("orders")
     suspend fun createOrder(@Body body: CreateOrderRequestDto): OrderDto
 
+    /** [date] format YYYY-MM-DD, artinya tanggal WIB saat pesanan dibuat. */
     @GET("orders/me")
-    suspend fun getMyOrders(@Query("status") status: String? = null): List<OrderDto>
+    suspend fun getMyOrders(
+        @Query("status") status: String? = null,
+        @Query("date") date: String? = null,
+    ): List<OrderDto>
 
     @GET("orders/{id}")
     suspend fun getOrder(@Path("id") orderId: Int): OrderDto
+
+    // ---------- Target gizi (pembeli) ----------
+    @GET("nutrition-target")
+    suspend fun getNutritionTarget(): NutritionTargetDto
+
+    @PUT("nutrition-target")
+    suspend fun updateNutritionTarget(@Body body: NutritionTargetDto): NutritionTargetDto
 }

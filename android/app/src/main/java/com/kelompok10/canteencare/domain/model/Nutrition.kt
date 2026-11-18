@@ -27,12 +27,19 @@ data class Nutrition(
     }
 }
 
-/** Jenis gizi beserta label dan satuannya untuk ditampilkan. */
-enum class Nutrient(val label: String, val unit: String) {
-    CALORIES("Kalori", "kkal"),
-    CARBS("Karbohidrat", "g"),
-    PROTEIN("Protein", "g"),
-    FAT("Lemak", "g"),
-    SALT("Garam (natrium)", "mg"),
-    SUGAR("Gula", "g"),
+/**
+ * Jenis target gizi:
+ * - GOAL: sebaiknya dicapai (makin dekat 100% makin baik).
+ * - LIMIT: batas maksimal (sebaiknya tidak dilewati).
+ */
+enum class NutrientKind { GOAL, LIMIT }
+
+/** Jenis gizi beserta label, satuan, dan jenis targetnya. */
+enum class Nutrient(val label: String, val unit: String, val kind: NutrientKind) {
+    CALORIES("Kalori", "kkal", NutrientKind.GOAL),
+    CARBS("Karbohidrat", "g", NutrientKind.GOAL),
+    PROTEIN("Protein", "g", NutrientKind.GOAL),
+    FAT("Lemak", "g", NutrientKind.LIMIT),
+    SALT("Garam (natrium)", "mg", NutrientKind.LIMIT),
+    SUGAR("Gula", "g", NutrientKind.LIMIT),
 }

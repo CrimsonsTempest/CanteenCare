@@ -2,6 +2,7 @@ package com.kelompok10.canteencare.core.util
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.time.LocalDate
 import java.time.OffsetDateTime
 
 class WibTimeTest {
@@ -17,5 +18,10 @@ class WibTimeTest {
         // 23.30 UTC tanggal 17 = 06.30 WIB tanggal 18
         val utc = OffsetDateTime.parse("2026-11-17T23:30:00+00:00")
         assertEquals("18 Nov 2026, 06.30 WIB", WibTime.formatDateTime(utc))
+    }
+
+    @Test
+    fun `tanggal panjang dalam bahasa Indonesia`() {
+        assertEquals("Rabu, 18 November 2026", WibTime.formatLongDate(LocalDate.of(2026, 11, 18)))
     }
 }

@@ -29,6 +29,8 @@ import com.kelompok10.canteencare.ui.components.PlaceholderAction
 import com.kelompok10.canteencare.ui.components.NotificationPermissionRequest
 import com.kelompok10.canteencare.ui.components.PlaceholderScreen
 import com.kelompok10.canteencare.ui.pembeli.history.HistoryRoute
+import com.kelompok10.canteencare.ui.pembeli.nutrition.NutritionRoute
+import com.kelompok10.canteencare.ui.pembeli.target.NutritionTargetRoute
 import com.kelompok10.canteencare.ui.pembeli.cart.CartRoute
 import com.kelompok10.canteencare.ui.pembeli.home.HomeRoute
 import com.kelompok10.canteencare.ui.pembeli.order.OrderDetailRoute
@@ -188,14 +190,14 @@ fun CanteenCareNavHost(
                 HistoryRoute(onOrderClick = { orderId -> navController.navigate(Routes.order(orderId)) })
             }
             composable(Routes.NUTRITION) {
-                PlaceholderScreen(
-                    title = "Gizi Hari Ini",
-                    description = "Progres gizi harian dibangun di Phase 9.",
-                    actions = listOf(PlaceholderAction("Ubah target") { navController.navigate(Routes.NUTRITION_TARGET) }),
-                )
+                NutritionRoute(onEditTarget = { navController.navigate(Routes.NUTRITION_TARGET) })
             }
             composable(Routes.NUTRITION_TARGET) {
-                PlaceholderScreen("Target Gizi", "Dibangun di Phase 9.", onBack = navController::popBackStack)
+                NutritionTargetRoute(
+                    onBack = navController::popBackStack,
+                    // Kembali ke Gizi Hari Ini, yang otomatis memuat ulang progres dengan target baru
+                    onSaved = navController::popBackStack,
+                )
             }
 
             // ---------- PENJUAL ----------

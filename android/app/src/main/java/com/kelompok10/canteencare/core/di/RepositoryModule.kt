@@ -6,7 +6,9 @@ import com.kelompok10.canteencare.data.repository.CatalogRepository
 import com.kelompok10.canteencare.data.repository.DefaultAuthRepository
 import com.kelompok10.canteencare.data.repository.DefaultCartRepository
 import com.kelompok10.canteencare.data.repository.DefaultCatalogRepository
+import com.kelompok10.canteencare.data.repository.DefaultNutritionRepository
 import com.kelompok10.canteencare.data.repository.DefaultOrderRepository
+import com.kelompok10.canteencare.data.repository.NutritionRepository
 import com.kelompok10.canteencare.data.repository.OrderRepository
 import dagger.Binds
 import dagger.Module
@@ -29,4 +31,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindOrderRepository(impl: DefaultOrderRepository): OrderRepository
+
+    @Binds
+    abstract fun bindNutritionRepository(impl: DefaultNutritionRepository): NutritionRepository
 }
