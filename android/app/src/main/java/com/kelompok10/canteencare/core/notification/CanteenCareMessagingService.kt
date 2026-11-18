@@ -1,12 +1,9 @@
 package com.kelompok10.canteencare.core.notification
 
-import android.Manifest
 import android.app.PendingIntent
 import android.content.Intent
-import android.content.pm.PackageManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.kelompok10.canteencare.MainActivity
@@ -65,11 +62,15 @@ class CanteenCareMessagingService : FirebaseMessagingService() {
             .setContentIntent(pendingIntent)
             .build()
 
-        // Android 13+: tanpa izin POST_NOTIFICATIONS notifikasi tidak boleh ditampilkan
-        val hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
-            PackageManager.PERMISSION_GRANTED
-        if (hasPermission) {
-            NotificationManagerCompat.from(this).notify(orderId?.toIntOrNull() ?: 0, notification)
+        // Cek apakah notifikasi diizinkan user. Fungsi ini benar untuk semua versi Android:
+        // di Android 13+ ia mengikuti izin POST_NOTIFICATIONS, di versi lama mengikuti pengaturan aplikasi.
+        val notificationManager = NotificationManagerCompat.from(this)
+        if (notificationManager.areNotificationsEnabled()) {
+            try {
+                notificationManager.notify(orderId?.toIntOrNull() ?: 0, notification)
+            } catch (e: SecurityException) {
+                // Izin dicabut tepat sebelum notifikasi tampil; cukup diabaikan
+            }
         }
     }
 }

@@ -4,53 +4,65 @@ Aplikasi Android untuk memesan makanan dan minuman dari stan kantin kampus sambi
 
 Final project Praktikum Pengembangan Aplikasi Perangkat Bergerak (PAPB) TIF-A, FILKOM Universitas Brawijaya 2026, Kelompok 10.
 
-> Status: dalam pengembangan. Bagian bertanda _TODO_ akan dilengkapi di fase berikutnya.
-
 ## Fitur Inti
 
-1. **Pemesanan Makanan dan Minuman Terintegrasi** — keranjang, total harga, pembayaran simulasi, konfirmasi penjual, notifikasi.
-2. **Informasi dan Perhitungan Total Gizi Pesanan** — total kalori, karbohidrat, protein, lemak, garam, dan gula dihitung langsung di keranjang.
-3. **Pelacakan Asupan Gizi Harian terhadap Target** — progres gizi hari ini dari pesanan yang dikonfirmasi dibandingkan target pribadi.
+1. **Pemesanan Makanan dan Minuman Terintegrasi**: keranjang, total harga, pembayaran simulasi (Tunai/QRIS), konfirmasi penjual yang mengurangi stok, dan push notification.
+2. **Informasi dan Perhitungan Total Gizi Pesanan**: total kalori, karbohidrat, protein, lemak, garam, dan gula dihitung langsung di keranjang dan berubah setiap kali jumlah porsi diubah.
+3. **Pelacakan Asupan Gizi Harian terhadap Target**: progres gizi hari ini (WIB) dari pesanan yang sudah dikonfirmasi, dibandingkan target pribadi, lengkap dengan persentase, sisa, dan warna status.
+
+Ketiga perhitungan dilakukan di aplikasi oleh `NutritionCalculator` (Kotlin murni, diuji JUnit). Backend menghitung ulang total pesanan secara terpisah untuk menjaga keabsahan data.
+
+## Peran Pengguna
+
+| Peran | Bisa apa |
+|---|---|
+| **Pembeli** | Daftar, login, lihat stan dan menu beserta gizinya, cari menu, keranjang, pesan, riwayat, notifikasi status pesanan, atur target gizi, lihat gizi hari ini |
+| **Penjual** | Lihat pesanan masuk, konfirmasi (stok berkurang) atau tolak dengan alasan, ubah stok, ajukan menu baru dengan estimasi gizi, arsipkan menu, notifikasi pesanan baru |
+| **Admin** | Verifikasi gizi dan setujui/tolak menu, edit data menu, buat akun penjual beserta stannya |
 
 ## Struktur Repository
 
 ```
 CanteenCare/
-├── CLAUDE.md        # brief proyek lengkap
+├── CLAUDE.md              # brief proyek lengkap
 ├── README.md
 ├── docs/
-│   ├── erd.dbml     # desain database
-│   └── api.md       # daftar endpoint API
-├── backend/         # FastAPI + SQLite
-└── android/         # aplikasi Android (Kotlin, Jetpack Compose)
+│   ├── erd.dbml           # desain database (buka di dbdiagram.io)
+│   ├── api.md             # daftar endpoint API
+│   ├── ARCHITECTURE.md    # penjelasan arsitektur untuk anggota tim
+│   ├── LAPORAN_NOTES.md   # pemetaan kode ke laporan Bab III + daftar screenshot
+│   └── DEMO_SCRIPT.md     # skenario video demo 1080p
+├── backend/               # FastAPI + SQLite
+└── android/               # aplikasi Android (Kotlin, Jetpack Compose)
 ```
 
 ## Prasyarat
 
 - Python 3.11 atau lebih baru
 - Git
-- Android Studio dengan Android SDK
-- Akun Firebase, untuk push notification
+- Android Studio (sudah termasuk Android SDK dan JDK)
+- Project Firebase, untuk push notification (lihat Setup Firebase)
 
 ## Menjalankan Backend
 
-Langkah lengkap ada di [backend/README.md](backend/README.md). Ringkasnya:
+Langkah lengkap dan cara mencoba lewat Swagger ada di [backend/README.md](backend/README.md). Ringkasnya, dari folder `backend`:
 
 ```
-cd backend
 python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
+.venv\Scripts\python -m pip install -r requirements.txt
 copy .env.example .env
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+.venv\Scripts\python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Swagger UI tersedia di http://localhost:8000/docs.
+- Buka `.env` dan isi `SECRET_KEY` dengan string acak sebelum menjalankan server.
+- Swagger UI: http://localhost:8000/docs
+- Data demo terisi otomatis saat pertama kali menyala. Untuk mengulang dari awal, login sebagai admin di Swagger lalu jalankan `POST /api/v1/admin/dev/reset-demo`.
+- Tes backend: `.venv\Scripts\python -m pytest -q`
 
 ## Menjalankan Aplikasi Android
 
 1. Buka folder `android/` di Android Studio dengan **File → Open**, lalu tunggu Gradle sync selesai.
-2. Pastikan `android/app/google-services.json` ada. File ini tidak ikut di Git, jadi lihat bagian Setup Firebase.
+2. Pastikan `android/app/google-services.json` ada. File ini tidak ikut di Git (lihat Setup Firebase).
 3. Nyalakan backend dulu, lalu tekan ▶ **Run**.
 
 **Alamat backend.** Aplikasi membaca alamat backend dari `android/local.properties`, dengan key `canteencare.baseUrl`:
@@ -67,13 +79,15 @@ Swagger UI tersedia di http://localhost:8000/docs.
 
 HTTP biasa tanpa HTTPS hanya diizinkan di build debug, lewat `app/src/debug/res/xml/network_security_config.xml`.
 
-**Build dari terminal.** Gunakan JDK bawaan Android Studio:
+**Build dan tes dari terminal (PowerShell).** Gunakan JDK bawaan Android Studio:
 
 ```
 cd android
 $env:JAVA_HOME="C:\Program Files\Android\Android Studio1\jbr"
 .\gradlew assembleDebug testDebugUnitTest
 ```
+
+Sesuaikan path `JAVA_HOME` dengan lokasi instalasi Android Studio di laptopmu.
 
 ## Setup Firebase
 
@@ -87,38 +101,48 @@ Firebase dipakai hanya untuk push notification (FCM). Tanpa Firebase pun backend
 
 **B. Mendaftarkan aplikasi Android**
 
-1. Di halaman project, klik ikon **Android** untuk menambah aplikasi.
+1. Di halaman project, klik **+ Add app**, lalu ikon **Android**.
 2. Isi **Android package name** dengan `com.kelompok10.canteencare`, persis tanpa salah ketik. Nickname boleh `CanteenCare`, SHA-1 boleh dikosongkan.
-3. Klik **Register app**, lalu **Download google-services.json**.
-4. Simpan file itu di tempat aman. Setelah project Android dibuat, file ini dipindahkan ke `android/app/google-services.json`.
-5. Langkah tambahan tentang Gradle di wizard boleh dilewati dengan **Next** sampai selesai. Bagian itu dikerjakan saat setup Android.
+3. Klik **Register app**, lalu **Download google-services.json**, dan simpan di `android/app/google-services.json`.
+4. Langkah tambahan tentang Gradle di wizard boleh dilewati dengan **Next** sampai selesai, karena sudah diatur di project.
 
 **C. Kunci service account untuk backend**
 
-1. Klik ikon gerigi di kiri atas → **Project settings** → tab **Service accounts**.
-2. Pastikan pilihan **Firebase Admin SDK** aktif, lalu klik **Generate new private key** → **Generate key**. Sebuah file `.json` akan terunduh.
+1. Buka **Settings → Project settings → Service accounts**.
+2. Pilih **Firebase Admin SDK**, lalu klik **Generate new private key → Generate key**. Sebuah file `.json` akan terunduh.
 3. Ganti nama file itu menjadi `firebase-service-account.json` dan pindahkan ke folder `backend/`.
 4. Restart server backend. Di log harus muncul `Firebase siap, notifikasi aktif.`
 
 **D. Pastikan Cloud Messaging aktif**
 
-Di **Project settings** → tab **Cloud Messaging**, bagian **Firebase Cloud Messaging API (V1)** harus berstatus **Enabled**. Untuk project baru, biasanya sudah aktif otomatis.
+Di **Project settings → Cloud Messaging**, bagian **Firebase Cloud Messaging API (V1)** harus berstatus **Enabled**. Untuk project baru, biasanya sudah aktif otomatis.
 
-> **Penting:** `firebase-service-account.json` adalah kunci rahasia yang memberi akses penuh ke project Firebase. File ini dan `google-services.json` sudah masuk `.gitignore`, jadi jangan pernah diunggah ke GitHub. Teman satu tim perlu meminta kedua file ini langsung kepadamu.
+> **Penting:** `firebase-service-account.json` adalah kunci rahasia yang memberi akses penuh ke project Firebase. File ini dan `google-services.json` sudah masuk `.gitignore`, jadi jangan pernah diunggah ke GitHub. Anggota tim perlu meminta kedua file ini langsung kepada pemilik project Firebase.
 
 ## Akun Demo
 
-| Role | Email | Password |
-|---|---|---|
-| ADMIN | admin@canteencare.id | admin123 |
-| PENJUAL | gapura@canteencare.id | penjual123 |
-| PENJUAL | busri@canteencare.id | penjual123 |
-| PENJUAL | segar@canteencare.id | penjual123 |
-| PEMBELI | daffa@student.ub.ac.id | pembeli123 |
-| PEMBELI | rafael@student.ub.ac.id | pembeli123 |
+| Peran | Email | Password | Keterangan |
+|---|---|---|---|
+| Admin | admin@canteencare.id | admin123 | |
+| Penjual | gapura@canteencare.id | penjual123 | Dapur Gapura |
+| Penjual | busri@canteencare.id | penjual123 | Warung Bu Sri |
+| Penjual | segar@canteencare.id | penjual123 | Kedai Segar |
+| Pembeli | daffa@student.ub.ac.id | pembeli123 | Target gizi default, punya contoh pesanan hari ini dan kemarin |
+| Pembeli | rafael@student.ub.ac.id | pembeli123 | Target gizi sendiri (2500 kkal) |
 
-Nilai gizi pada data demo adalah estimasi yang wajar, bukan hasil uji laboratorium.
+Data demo juga berisi 13 menu, termasuk **Nasi Ayam Geprek** yang masih PENDING untuk demo verifikasi admin. Nilai gizi pada data demo adalah estimasi yang wajar, bukan hasil uji laboratorium.
 
 ## Skenario Demo
 
-_TODO (Phase 12)._
+Naskah lengkap video demo (semua peran dan ketiga fungsi inti) ada di [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md). Selalu jalankan `reset-demo` sebelum merekam supaya data dan tanggal contoh pesanan sesuai hari perekaman.
+
+## Troubleshooting
+
+| Masalah | Penyebab dan solusi |
+|---|---|
+| `python` membuka Microsoft Store | Panggil Python lewat venv: `.venv\Scripts\python ...` |
+| Aplikasi tidak bisa terhubung ke server | Backend belum menyala, atau HP fisik belum diatur `canteencare.baseUrl` (lihat di atas) |
+| Notifikasi kadang terkirim, kadang tidak | Ada dua server backend di port 8000. Cek `netstat -ano \| findstr :8000` dan matikan yang lama |
+| Notifikasi masuk ke akun yang salah | Satu HP hanya menerima notifikasi untuk akun yang **terakhir login** di HP itu. Untuk demo, pakai dua perangkat |
+| Build Gradle gagal karena memori | Tutup aplikasi lain (browser, Discord) saat build sambil menjalankan emulator |
+| Gizi hari ini kosong padahal sudah pesan | Hanya pesanan yang sudah **dikonfirmasi penjual** yang dihitung |

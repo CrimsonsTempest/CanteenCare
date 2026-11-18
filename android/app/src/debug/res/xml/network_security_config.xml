@@ -3,6 +3,8 @@
     Backend lokal berjalan di HTTP tanpa HTTPS, misalnya http://10.0.2.2:8000 atau http://192.168.x.x:8000.
     File ini hanya ada di build debug, jadi build release tetap menolak HTTP biasa.
 -->
-<network-security-config>
-    <base-config cleartextTrafficPermitted="true" />
+<network-security-config xmlns:tools="http://schemas.android.com/tools">
+    <base-config
+        cleartextTrafficPermitted="true"
+        tools:ignore="InsecureBaseConfiguration" />
 </network-security-config>

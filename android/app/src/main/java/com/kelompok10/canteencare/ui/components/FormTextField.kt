@@ -13,6 +13,9 @@ import androidx.compose.ui.text.input.KeyboardType
  * Kolom isian satu baris dengan pesan error di bawahnya.
  * Dipakai oleh form menu (penjual dan admin) dan form penjual baru.
  */
+// Urutan parameter sengaja dipertahankan agar pemanggilan singkat tetap terbaca:
+// FormTextField(nilai, onChange, "Label", isError, "Pesan error")
+@Suppress("ModifierParameter")
 @Composable
 fun FormTextField(
     value: String,
@@ -21,7 +24,7 @@ fun FormTextField(
     isError: Boolean = false,
     errorText: String = "",
     keyboardType: KeyboardType = KeyboardType.Text,
-    modifier: Modifier = Modifier.fillMaxWidth(),
+    modifier: Modifier = Modifier,
 ) {
     OutlinedTextField(
         value = value,
@@ -36,6 +39,6 @@ fun FormTextField(
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         shape = MaterialTheme.shapes.medium,
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
     )
 }
