@@ -4,13 +4,15 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -18,48 +20,54 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.kelompok10.canteencare.domain.model.Role
+import com.kelompok10.canteencare.ui.auth.LoginRoute
+import com.kelompok10.canteencare.ui.auth.RegisterRoute
+import com.kelompok10.canteencare.ui.auth.SplashRoute
 import com.kelompok10.canteencare.ui.components.PlaceholderAction
 import com.kelompok10.canteencare.ui.components.PlaceholderScreen
-import kotlinx.coroutines.delay
+import com.kelompok10.canteencare.ui.profile.ProfileRoute
+import kotlinx.coroutines.launch
 
 /**
  * Peta navigasi seluruh aplikasi.
- * Bottom bar hanya muncul di layar tab utama, dan isinya menyesuaikan peran user.
- *
- * Catatan Phase 4: peran masih disimpan sementara di sini dan dipilih lewat tombol di layar Login.
- * Mulai Phase 5, peran diambil dari sesi login (DataStore).
+ * Bottom bar hanya muncul di layar tab utama, dan isinya menyesuaikan peran dari sesi login.
  */
 @Composable
-fun CanteenCareNavHost(navController: NavHostController = rememberNavController()) {
-    var role by rememberSaveable { mutableStateOf<Role?>(null) }
+fun CanteenCareNavHost(
+    navController: NavHostController = rememberNavController(),
+    appViewModel: AppViewModel = hiltViewModel(),
+) {
+    val role by appViewModel.role.collectAsStateWithLifecycle()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
     val tabs = role?.let(::tabsFor).orEmpty()
     val showBottomBar = tabs.any { it.route == currentRoute }
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    fun loginAs(selected: Role) {
-        role = selected
-        navController.navigate(Routes.homeFor(selected)) {
-            // Hapus layar login dari back stack supaya tombol Back tidak kembali ke login
+    // Pindah ke layar Login dan hapus seluruh back stack (tombol Back tidak bisa kembali)
+    fun goToLogin() {
+        navController.navigate(Routes.LOGIN) {
             popUpTo(navController.graph.id) { inclusive = true }
         }
     }
 
-    fun logout() {
-        role = null
-        navController.navigate(Routes.LOGIN) {
-            popUpTo(navController.graph.id) { inclusive = true }
+    // Server membalas 401 → sesi sudah dibersihkan AppViewModel → kembali ke Login dengan pesan
+    LaunchedEffect(Unit) {
+        appViewModel.sessionExpired.collect {
+            goToLogin()
+            launch { snackbarHostState.showSnackbar("Sesi berakhir, silakan login lagi") }
         }
     }
 
     Scaffold(
         // Inset sistem diurus oleh Scaffold di tiap layar, bukan di sini
         contentWindowInsets = WindowInsets(0),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
-            if (showBottomBar) {
+            val currentRole = role
+            if (showBottomBar && currentRole != null) {
                 RoleBottomBar(tabs = tabs, currentRoute = currentRoute) { tab ->
-                    navController.navigateToTab(tab.route, homeRoute = Routes.homeFor(role!!))
+                    navController.navigateToTab(tab.route, homeRoute = Routes.homeFor(currentRole))
                 }
             }
         },
@@ -71,35 +79,36 @@ fun CanteenCareNavHost(navController: NavHostController = rememberNavController(
         ) {
             // ---------- Bersama ----------
             composable(Routes.SPLASH) {
-                LaunchedEffect(Unit) {
-                    delay(800)
-                    navController.navigate(Routes.LOGIN) {
+                SplashRoute(onNavigate = { destination ->
+                    navController.navigate(destination) {
                         popUpTo(Routes.SPLASH) { inclusive = true }
                     }
-                }
-                PlaceholderScreen("CanteenCare", "Memuat... Splash sungguhan dibangun di Phase 5.")
+                })
             }
             composable(Routes.LOGIN) {
-                PlaceholderScreen(
-                    title = "Masuk",
-                    description = "Login sungguhan dibangun di Phase 5. Untuk sementara, pilih peran:",
-                    actions = listOf(
-                        PlaceholderAction("Masuk sebagai Pembeli") { loginAs(Role.PEMBELI) },
-                        PlaceholderAction("Masuk sebagai Penjual") { loginAs(Role.PENJUAL) },
-                        PlaceholderAction("Masuk sebagai Admin") { loginAs(Role.ADMIN) },
-                        PlaceholderAction("Belum punya akun? Daftar") { navController.navigate(Routes.REGISTER) },
-                    ),
+                LoginRoute(
+                    onLoggedIn = { loggedInRole ->
+                        // Setelah login, langsung ke home sesuai peran dan hapus layar login dari back stack
+                        navController.navigate(Routes.homeFor(loggedInRole)) {
+                            popUpTo(navController.graph.id) { inclusive = true }
+                        }
+                    },
+                    onRegisterClick = { navController.navigate(Routes.REGISTER) },
                 )
             }
             composable(Routes.REGISTER) {
-                PlaceholderScreen("Daftar", "Dibangun di Phase 5.", onBack = navController::popBackStack)
+                RegisterRoute(
+                    onRegistered = {
+                        // Registrasi publik selalu menjadi PEMBELI
+                        navController.navigate(Routes.HOME) {
+                            popUpTo(navController.graph.id) { inclusive = true }
+                        }
+                    },
+                    onBack = navController::popBackStack,
+                )
             }
             composable(Routes.PROFILE) {
-                PlaceholderScreen(
-                    title = "Profil",
-                    description = "Peran saat ini: ${role?.name ?: "-"}. Profil lengkap dibangun di Phase 5.",
-                    actions = listOf(PlaceholderAction("Keluar") { logout() }),
-                )
+                ProfileRoute(onLoggedOut = ::goToLogin)
             }
 
             // ---------- PEMBELI ----------

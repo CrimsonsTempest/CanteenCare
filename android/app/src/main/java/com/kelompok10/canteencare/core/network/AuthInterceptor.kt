@@ -8,17 +8,27 @@ import okhttp3.Response
 import javax.inject.Inject
 
 /**
- * Menempelkan header "Authorization: Bearer <token>" ke setiap request jika user sudah login.
+ * 1. Menempelkan header "Authorization: Bearer <token>" ke setiap request jika user sudah login.
+ * 2. Jika request yang membawa token dibalas 401, berarti token sudah tidak berlaku:
+ *    kirim kejadian "sesi berakhir" supaya aplikasi kembali ke layar Login.
+ *
  * OkHttp menjalankan interceptor di thread background, jadi runBlocking aman dipakai di sini.
  */
 class AuthInterceptor @Inject constructor(
     private val sessionDataStore: SessionDataStore,
+    private val sessionEvents: SessionEvents,
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = runBlocking { sessionDataStore.token.first() }
         val request = chain.request().newBuilder().apply {
             if (token != null) header("Authorization", "Bearer $token")
         }.build()
-        return chain.proceed(request)
+
+        val response = chain.proceed(request)
+        // 401 saat login (password salah) tidak dihitung, karena request login tidak membawa token
+        if (response.code == 401 && token != null) {
+            sessionEvents.notifyExpired()
+        }
+        return response
     }
 }
