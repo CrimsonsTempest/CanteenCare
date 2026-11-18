@@ -2,6 +2,7 @@ package com.kelompok10.canteencare.data.remote.dto
 
 import com.kelompok10.canteencare.domain.model.Menu
 import com.kelompok10.canteencare.domain.model.MenuCategory
+import com.kelompok10.canteencare.domain.model.MenuStatus
 import com.kelompok10.canteencare.domain.model.Nutrition
 import com.kelompok10.canteencare.domain.model.Vendor
 
@@ -65,7 +66,7 @@ fun MenuDto.toDomain() = Menu(
     price = price,
     stock = stock,
     imageUrl = imageUrl,
-    status = status,
+    status = MenuStatus.valueOf(status),
     nutrition = nutrition?.toDomain(),
     isNutritionVerified = nutrition?.isVerified == true,
 )

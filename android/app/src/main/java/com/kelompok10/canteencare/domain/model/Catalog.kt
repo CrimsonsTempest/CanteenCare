@@ -5,6 +5,14 @@ enum class MenuCategory(val label: String) {
     MINUMAN("Minuman"),
 }
 
+/** Status menu. Hanya APPROVED yang tampil untuk pembeli. */
+enum class MenuStatus(val label: String) {
+    PENDING("Menunggu verifikasi"),
+    APPROVED("Tampil"),
+    REJECTED("Ditolak admin"),
+    ARCHIVED("Diarsipkan"),
+}
+
 /** Stan kantin. Satu penjual memiliki satu stan. */
 data class Vendor(
     val id: Int,
@@ -25,7 +33,7 @@ data class Menu(
     val price: Int,
     val stock: Int,
     val imageUrl: String?,
-    val status: String,
+    val status: MenuStatus,
     val nutrition: Nutrition?,
     val isNutritionVerified: Boolean,
 ) {
@@ -43,3 +51,14 @@ data class CartItem(
     override val quantity: Int,
     override val nutrition: Nutrition,
 ) : LineItem
+
+/** Isian form menu baru dari penjual, sebelum dikirim ke server. [nutrition] adalah estimasi per porsi. */
+data class MenuDraft(
+    val name: String,
+    val description: String?,
+    val category: MenuCategory,
+    val price: Int,
+    val stock: Int,
+    val imageUrl: String?,
+    val nutrition: Nutrition,
+)

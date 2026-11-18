@@ -8,8 +8,10 @@ import com.kelompok10.canteencare.data.repository.DefaultCartRepository
 import com.kelompok10.canteencare.data.repository.DefaultCatalogRepository
 import com.kelompok10.canteencare.data.repository.DefaultNutritionRepository
 import com.kelompok10.canteencare.data.repository.DefaultOrderRepository
+import com.kelompok10.canteencare.data.repository.DefaultSellerRepository
 import com.kelompok10.canteencare.data.repository.NutritionRepository
 import com.kelompok10.canteencare.data.repository.OrderRepository
+import com.kelompok10.canteencare.data.repository.SellerRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -34,4 +36,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindNutritionRepository(impl: DefaultNutritionRepository): NutritionRepository
+
+    @Binds
+    abstract fun bindSellerRepository(impl: DefaultSellerRepository): SellerRepository
 }

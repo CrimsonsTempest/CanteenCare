@@ -46,6 +46,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kelompok10.canteencare.core.util.Formatters
 import com.kelompok10.canteencare.domain.model.Menu
 import com.kelompok10.canteencare.domain.model.MenuCategory
+import com.kelompok10.canteencare.domain.model.MenuStatus
 import com.kelompok10.canteencare.domain.model.Nutrition
 import com.kelompok10.canteencare.domain.model.Vendor
 import com.kelompok10.canteencare.ui.components.CartButton
@@ -285,7 +286,7 @@ private fun HomeSearchPreview() {
                 searchResults = listOf(
                     Menu(
                         4, 1, "Dapur Gapura", "Es Teh Manis", null, MenuCategory.MINUMAN, 4000, 50, null,
-                        "APPROVED", Nutrition(120.0, 30.0, 0.0, 0.0, 10.0, 30.0), true,
+                        MenuStatus.APPROVED, Nutrition(120.0, 30.0, 0.0, 0.0, 10.0, 30.0), true,
                     ),
                 ),
             ),

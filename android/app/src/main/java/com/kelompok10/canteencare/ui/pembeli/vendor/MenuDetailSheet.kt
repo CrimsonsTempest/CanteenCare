@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.kelompok10.canteencare.core.util.Formatters
 import com.kelompok10.canteencare.domain.model.Menu
 import com.kelompok10.canteencare.domain.model.MenuCategory
+import com.kelompok10.canteencare.domain.model.MenuStatus
 import com.kelompok10.canteencare.domain.model.Nutrition
 import com.kelompok10.canteencare.ui.components.FoodImage
 import com.kelompok10.canteencare.ui.components.NutritionTable
@@ -142,7 +143,7 @@ private fun MenuDetailContentPreview() {
         MenuDetailContent(
             menu = Menu(
                 1, 1, "Dapur Gapura", "Mie Ayam Solo", "Mie ayam khas Solo dengan pangsit", MenuCategory.MAKANAN,
-                20000, 25, null, "APPROVED", Nutrition(650.0, 85.0, 30.0, 25.0, 1800.0, 6.0), true,
+                20000, 25, null, MenuStatus.APPROVED, Nutrition(650.0, 85.0, 30.0, 25.0, 1800.0, 6.0), true,
             ),
             quantity = 2,
             onDecrease = {}, onIncrease = {}, onAddToCart = {},

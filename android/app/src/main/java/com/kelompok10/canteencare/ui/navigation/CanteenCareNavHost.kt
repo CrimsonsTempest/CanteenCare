@@ -35,6 +35,10 @@ import com.kelompok10.canteencare.ui.pembeli.cart.CartRoute
 import com.kelompok10.canteencare.ui.pembeli.home.HomeRoute
 import com.kelompok10.canteencare.ui.pembeli.order.OrderDetailRoute
 import com.kelompok10.canteencare.ui.pembeli.vendor.VendorRoute
+import com.kelompok10.canteencare.ui.penjual.menunew.NewMenuRoute
+import com.kelompok10.canteencare.ui.penjual.menus.SellerMenusRoute
+import com.kelompok10.canteencare.ui.penjual.order.SellerOrderDetailRoute
+import com.kelompok10.canteencare.ui.penjual.orders.SellerOrdersRoute
 import com.kelompok10.canteencare.ui.profile.ProfileRoute
 import kotlinx.coroutines.launch
 
@@ -202,33 +206,20 @@ fun CanteenCareNavHost(
 
             // ---------- PENJUAL ----------
             composable(Routes.SELLER_ORDERS) {
-                PlaceholderScreen(
-                    title = "Pesanan Masuk",
-                    description = "Daftar pesanan penjual dibangun di Phase 10.",
-                    actions = listOf(
-                        PlaceholderAction("Lihat pesanan #1") { navController.navigate(Routes.sellerOrder(1)) },
-                    ),
-                )
+                SellerOrdersRoute(onOrderClick = { orderId -> navController.navigate(Routes.sellerOrder(orderId)) })
             }
             composable(
                 route = Routes.SELLER_ORDER,
                 arguments = listOf(navArgument(Routes.ARG_ORDER_ID) { type = NavType.IntType }),
-            ) { entry ->
-                PlaceholderScreen(
-                    title = "Pesanan #${entry.arguments?.getInt(Routes.ARG_ORDER_ID)}",
-                    description = "Konfirmasi dan tolak pesanan dibangun di Phase 10.",
-                    onBack = navController::popBackStack,
-                )
+            ) {
+                SellerOrderDetailRoute(onBack = navController::popBackStack)
             }
             composable(Routes.SELLER_MENUS) {
-                PlaceholderScreen(
-                    title = "Menu & Stok",
-                    description = "Kelola menu dan stok dibangun di Phase 10.",
-                    actions = listOf(PlaceholderAction("Tambah menu") { navController.navigate(Routes.SELLER_MENU_NEW) }),
-                )
+                SellerMenusRoute(onAddMenu = { navController.navigate(Routes.SELLER_MENU_NEW) })
             }
             composable(Routes.SELLER_MENU_NEW) {
-                PlaceholderScreen("Menu Baru", "Dibangun di Phase 10.", onBack = navController::popBackStack)
+                // Setelah berhasil, kembali ke daftar menu yang otomatis dimuat ulang
+                NewMenuRoute(onBack = navController::popBackStack, onSaved = navController::popBackStack)
             }
 
             // ---------- ADMIN ----------

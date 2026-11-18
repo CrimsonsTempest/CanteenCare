@@ -1,6 +1,7 @@
 package com.kelompok10.canteencare.core.network
 
 import com.kelompok10.canteencare.data.remote.dto.AuthResponseDto
+import com.kelompok10.canteencare.data.remote.dto.CreateMenuRequestDto
 import com.kelompok10.canteencare.data.remote.dto.CreateOrderRequestDto
 import com.kelompok10.canteencare.data.remote.dto.FcmTokenRequestDto
 import com.kelompok10.canteencare.data.remote.dto.LoginRequestDto
@@ -9,10 +10,14 @@ import com.kelompok10.canteencare.data.remote.dto.MessageDto
 import com.kelompok10.canteencare.data.remote.dto.NutritionTargetDto
 import com.kelompok10.canteencare.data.remote.dto.OrderDto
 import com.kelompok10.canteencare.data.remote.dto.RegisterRequestDto
+import com.kelompok10.canteencare.data.remote.dto.RejectRequestDto
+import com.kelompok10.canteencare.data.remote.dto.StockRequestDto
 import com.kelompok10.canteencare.data.remote.dto.UserDto
 import com.kelompok10.canteencare.data.remote.dto.VendorDto
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -71,4 +76,27 @@ interface ApiService {
 
     @PUT("nutrition-target")
     suspend fun updateNutritionTarget(@Body body: NutritionTargetDto): NutritionTargetDto
+
+    // ---------- Penjual (selalu untuk stan milik sendiri) ----------
+    @GET("seller/orders")
+    suspend fun getSellerOrders(): List<OrderDto>
+
+    @POST("seller/orders/{id}/confirm")
+    suspend fun confirmOrder(@Path("id") orderId: Int): OrderDto
+
+    @POST("seller/orders/{id}/reject")
+    suspend fun rejectOrder(@Path("id") orderId: Int, @Body body: RejectRequestDto): OrderDto
+
+    @GET("seller/menus")
+    suspend fun getSellerMenus(): List<MenuDto>
+
+    @POST("seller/menus")
+    suspend fun createMenu(@Body body: CreateMenuRequestDto): MenuDto
+
+    @PATCH("seller/menus/{id}/stock")
+    suspend fun updateStock(@Path("id") menuId: Int, @Body body: StockRequestDto): MenuDto
+
+    /** Mengarsipkan menu (status ARCHIVED), bukan menghapus permanen. */
+    @DELETE("seller/menus/{id}")
+    suspend fun archiveMenu(@Path("id") menuId: Int): MenuDto
 }
