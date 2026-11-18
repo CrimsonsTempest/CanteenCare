@@ -49,7 +49,31 @@ Swagger UI tersedia di http://localhost:8000/docs.
 
 ## Menjalankan Aplikasi Android
 
-_TODO (Phase 4)._ Emulator dan HP fisik lewat Wi‑Fi.
+1. Buka folder `android/` di Android Studio dengan **File → Open**, lalu tunggu Gradle sync selesai.
+2. Pastikan `android/app/google-services.json` ada. File ini tidak ikut di Git, jadi lihat bagian Setup Firebase.
+3. Nyalakan backend dulu, lalu tekan ▶ **Run**.
+
+**Alamat backend.** Aplikasi membaca alamat backend dari `android/local.properties`, dengan key `canteencare.baseUrl`:
+
+- **Emulator** tidak perlu diatur apa-apa. Default-nya `http://10.0.2.2:8000/api/v1/`, karena `10.0.2.2` adalah alamat laptop jika dilihat dari emulator.
+- **HP fisik** harus terhubung ke Wi‑Fi yang sama dengan laptop.
+  1. Cari IP laptop: jalankan `ipconfig` di terminal, lalu lihat **IPv4 Address** di adapter Wi‑Fi, misalnya `192.168.1.10`.
+  2. Tambahkan baris ini di `android/local.properties`:
+     ```
+     canteencare.baseUrl=http://192.168.1.10:8000/api/v1/
+     ```
+  3. Pastikan backend dijalankan dengan `--host 0.0.0.0`. Kalau HP tetap tidak bisa terhubung, izinkan Python di Windows Firewall untuk jaringan Private.
+  4. Klik **Sync Project with Gradle Files**, lalu Run ulang.
+
+HTTP biasa tanpa HTTPS hanya diizinkan di build debug, lewat `app/src/debug/res/xml/network_security_config.xml`.
+
+**Build dari terminal.** Gunakan JDK bawaan Android Studio:
+
+```
+cd android
+$env:JAVA_HOME="C:\Program Files\Android\Android Studio1\jbr"
+.\gradlew assembleDebug testDebugUnitTest
+```
 
 ## Setup Firebase
 

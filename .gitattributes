@@ -1,0 +1,4 @@
+# Script shell harus LF, script Windows harus CRLF
+*.sh text eol=lf
+gradlew text eol=lf
+*.bat text eol=crlf
