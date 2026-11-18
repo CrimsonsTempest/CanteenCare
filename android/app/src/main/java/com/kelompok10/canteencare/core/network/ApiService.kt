@@ -54,6 +54,9 @@ interface ApiService {
     @POST("orders")
     suspend fun createOrder(@Body body: CreateOrderRequestDto): OrderDto
 
+    @GET("orders/me")
+    suspend fun getMyOrders(@Query("status") status: String? = null): List<OrderDto>
+
     @GET("orders/{id}")
     suspend fun getOrder(@Path("id") orderId: Int): OrderDto
 }

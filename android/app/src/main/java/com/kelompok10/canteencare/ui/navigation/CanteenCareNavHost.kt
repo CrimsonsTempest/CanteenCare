@@ -20,11 +20,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.kelompok10.canteencare.core.notification.NotificationTarget
+import com.kelompok10.canteencare.domain.model.Role
 import com.kelompok10.canteencare.ui.auth.LoginRoute
 import com.kelompok10.canteencare.ui.auth.RegisterRoute
 import com.kelompok10.canteencare.ui.auth.SplashRoute
 import com.kelompok10.canteencare.ui.components.PlaceholderAction
+import com.kelompok10.canteencare.ui.components.NotificationPermissionRequest
 import com.kelompok10.canteencare.ui.components.PlaceholderScreen
+import com.kelompok10.canteencare.ui.pembeli.history.HistoryRoute
 import com.kelompok10.canteencare.ui.pembeli.cart.CartRoute
 import com.kelompok10.canteencare.ui.pembeli.home.HomeRoute
 import com.kelompok10.canteencare.ui.pembeli.order.OrderDetailRoute
@@ -38,6 +42,8 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun CanteenCareNavHost(
+    notificationTarget: NotificationTarget?,
+    onNotificationTargetHandled: () -> Unit,
     navController: NavHostController = rememberNavController(),
     appViewModel: AppViewModel = hiltViewModel(),
 ) {
@@ -61,6 +67,27 @@ fun CanteenCareNavHost(
             goToLogin()
             launch { snackbarHostState.showSnackbar("Sesi berakhir, silakan login lagi") }
         }
+    }
+
+    // Notifikasi diketuk → buka detail pesanan sesuai peran.
+    // Ditunda sampai user sudah login dan sudah melewati layar splash/login.
+    LaunchedEffect(notificationTarget, role, currentRoute) {
+        val target = notificationTarget ?: return@LaunchedEffect
+        val currentRole = role ?: return@LaunchedEffect
+        if (currentRoute == null || currentRoute in AUTH_ROUTES) return@LaunchedEffect
+        val route = when (currentRole) {
+            Role.PEMBELI -> Routes.order(target.orderId)
+            Role.PENJUAL -> Routes.sellerOrder(target.orderId)
+            Role.ADMIN -> null // admin tidak menerima notifikasi pesanan
+        }
+        route?.let { navController.navigate(it) { launchSingleTop = true } }
+        onNotificationTargetHandled()
+    }
+
+    // Setelah login, minta izin notifikasi (Android 13+)
+    val loggedInRole = role
+    if (loggedInRole != null && currentRoute != null && currentRoute !in AUTH_ROUTES) {
+        NotificationPermissionRequest(loggedInRole)
     }
 
     Scaffold(
@@ -158,11 +185,7 @@ fun CanteenCareNavHost(
                 OrderDetailRoute(onBack = navController::popBackStack)
             }
             composable(Routes.HISTORY) {
-                PlaceholderScreen(
-                    title = "Riwayat",
-                    description = "Riwayat pesanan dibangun di Phase 8.",
-                    actions = listOf(PlaceholderAction("Lihat pesanan #1") { navController.navigate(Routes.order(1)) }),
-                )
+                HistoryRoute(onOrderClick = { orderId -> navController.navigate(Routes.order(orderId)) })
             }
             composable(Routes.NUTRITION) {
                 PlaceholderScreen(
@@ -242,6 +265,9 @@ fun CanteenCareNavHost(
         }
     }
 }
+
+/** Layar sebelum/selama login; navigasi dari notifikasi menunggu sampai user keluar dari sini. */
+private val AUTH_ROUTES = setOf(Routes.SPLASH, Routes.LOGIN, Routes.REGISTER)
 
 /**
  * Pindah tab bottom bar tanpa menumpuk layar: kembali ke home peran,

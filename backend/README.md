@@ -68,6 +68,8 @@ Notifikasi dikirim otomatis pada tiga kejadian berikut:
 - **Pesanan dikonfirmasi:** dikirim ke pembeli, dengan data `{"type": "ORDER_STATUS", "order_id": "..."}`.
 - **Pesanan ditolak:** dikirim ke pembeli beserta alasannya, dengan data `{"type": "ORDER_STATUS", "order_id": "..."}`.
 
+**Notifikasi kadang terkirim, kadang tidak?** Kemungkinan ada dua server yang berjalan di port 8000, misalnya terminal lama yang lupa ditutup. Cek dengan `netstat -ano | findstr :8000`. Jika ada lebih dari satu PID yang `LISTENING`, tutup terminal server lama, atau jalankan `taskkill /PID <pid> /T /F` untuk PID yang lama.
+
 Notifikasi hanya terkirim ke user yang sudah mengirim token lewat `PUT /api/v1/users/me/fcm-token`. Aplikasi Android melakukannya otomatis setelah login. Kalau pengiriman gagal, request tetap berhasil, dan token yang sudah tidak berlaku akan dihapus.
 
 ## Menjalankan tes

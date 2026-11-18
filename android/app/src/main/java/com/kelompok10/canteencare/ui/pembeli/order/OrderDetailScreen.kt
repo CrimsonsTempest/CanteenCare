@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,7 +30,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.kelompok10.canteencare.core.util.Formatters
 import com.kelompok10.canteencare.core.util.WibTime
 import com.kelompok10.canteencare.domain.calculator.NutritionCalculator
@@ -44,6 +48,7 @@ import com.kelompok10.canteencare.ui.components.NutritionTable
 import com.kelompok10.canteencare.ui.components.StatusChip
 import com.kelompok10.canteencare.ui.theme.CanteenCareTheme
 import com.kelompok10.canteencare.ui.theme.StatusRed
+import kotlinx.coroutines.delay
 import java.time.OffsetDateTime
 
 @Composable
@@ -52,8 +57,24 @@ fun OrderDetailRoute(
     viewModel: OrderDetailViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    // Auto-refresh tiap 10 detik selama pesanan masih MENUNGGU dan layar sedang terlihat.
+    // Begitu status berubah (dikonfirmasi/ditolak), effect ini berhenti sendiri.
+    LaunchedEffect(uiState.order?.status) {
+        if (uiState.order?.status != OrderStatus.MENUNGGU) return@LaunchedEffect
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) {
+                delay(AUTO_REFRESH_MILLIS)
+                viewModel.refresh()
+            }
+        }
+    }
+
     OrderDetailScreen(uiState = uiState, onBack = onBack, onRetry = viewModel::load)
 }
+
+private const val AUTO_REFRESH_MILLIS = 10_000L
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -8,6 +8,7 @@ import com.kelompok10.canteencare.data.remote.dto.OrderItemRequestDto
 import com.kelompok10.canteencare.data.remote.dto.toDomain
 import com.kelompok10.canteencare.domain.model.CartItem
 import com.kelompok10.canteencare.domain.model.Order
+import com.kelompok10.canteencare.domain.model.OrderStatus
 import com.kelompok10.canteencare.domain.model.PaymentMethod
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,4 +36,7 @@ class DefaultOrderRepository @Inject constructor(
 
     override suspend fun getOrder(orderId: Int): ApiResult<Order> =
         safeApiCall { api.getOrder(orderId).toDomain() }
+
+    override suspend fun getMyOrders(status: OrderStatus?): ApiResult<List<Order>> =
+        safeApiCall { api.getMyOrders(status?.name).map { it.toDomain() } }
 }

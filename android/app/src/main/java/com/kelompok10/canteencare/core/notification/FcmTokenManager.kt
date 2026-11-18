@@ -2,6 +2,7 @@ package com.kelompok10.canteencare.core.notification
 
 import android.util.Log
 import com.google.firebase.messaging.FirebaseMessaging
+import com.kelompok10.canteencare.core.datastore.SessionDataStore
 import com.kelompok10.canteencare.core.di.ApplicationScope
 import com.kelompok10.canteencare.core.network.ApiResult
 import com.kelompok10.canteencare.core.network.ApiService
@@ -9,6 +10,7 @@ import com.kelompok10.canteencare.core.network.safeApiCall
 import com.kelompok10.canteencare.data.remote.dto.FcmTokenRequestDto
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
@@ -23,12 +25,19 @@ import kotlin.coroutines.resumeWithException
 @Singleton
 class FcmTokenManager @Inject constructor(
     private val api: ApiService,
+    private val sessionDataStore: SessionDataStore,
     @ApplicationScope private val appScope: CoroutineScope,
 ) {
-    fun syncToken() {
+    /**
+     * Kirim token ke backend. [newToken] diisi saat Firebase memberi token baru (onNewToken);
+     * jika null, token saat ini diambil dari Firebase (setelah login atau saat aplikasi dibuka).
+     */
+    fun syncToken(newToken: String? = null) {
         appScope.launch {
             try {
-                val token = fetchToken()
+                // Token hanya bisa disimpan untuk user yang sedang login
+                if (sessionDataStore.token.first() == null) return@launch
+                val token = newToken ?: fetchToken()
                 val result = safeApiCall { api.updateFcmToken(FcmTokenRequestDto(token)) }
                 if (result is ApiResult.Error) Log.w(TAG, "Gagal mengirim token FCM: ${result.message}")
             } catch (e: CancellationException) {
