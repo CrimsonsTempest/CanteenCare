@@ -2,9 +2,7 @@ package com.kelompok10.canteencare.ui.penjual.menunew
 
 import com.kelompok10.canteencare.domain.model.MenuCategory
 import com.kelompok10.canteencare.domain.model.Nutrient
-
-/** Kolom form menu yang bisa salah isi (selain kolom gizi). */
-enum class MenuField { NAME, PRICE, STOCK, IMAGE_URL }
+import com.kelompok10.canteencare.domain.validator.MenuField
 
 /** State form Menu Baru. Semua isian disimpan sebagai teks dan baru divalidasi saat Ajukan ditekan. */
 data class NewMenuUiState(

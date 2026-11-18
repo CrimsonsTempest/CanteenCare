@@ -22,12 +22,15 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.kelompok10.canteencare.core.notification.NotificationTarget
 import com.kelompok10.canteencare.domain.model.Role
+import com.kelompok10.canteencare.ui.admin.menu.AdminMenuDetailRoute
+import com.kelompok10.canteencare.ui.admin.menus.AdminMenusRoute
+import com.kelompok10.canteencare.ui.admin.menus.AdminPendingRoute
+import com.kelompok10.canteencare.ui.admin.sellernew.NewSellerRoute
+import com.kelompok10.canteencare.ui.admin.sellers.AdminSellersRoute
 import com.kelompok10.canteencare.ui.auth.LoginRoute
 import com.kelompok10.canteencare.ui.auth.RegisterRoute
 import com.kelompok10.canteencare.ui.auth.SplashRoute
-import com.kelompok10.canteencare.ui.components.PlaceholderAction
 import com.kelompok10.canteencare.ui.components.NotificationPermissionRequest
-import com.kelompok10.canteencare.ui.components.PlaceholderScreen
 import com.kelompok10.canteencare.ui.pembeli.history.HistoryRoute
 import com.kelompok10.canteencare.ui.pembeli.nutrition.NutritionRoute
 import com.kelompok10.canteencare.ui.pembeli.target.NutritionTargetRoute
@@ -224,36 +227,22 @@ fun CanteenCareNavHost(
 
             // ---------- ADMIN ----------
             composable(Routes.ADMIN_PENDING) {
-                PlaceholderScreen(
-                    title = "Verifikasi Menu",
-                    description = "Daftar menu menunggu verifikasi dibangun di Phase 11.",
-                    actions = listOf(PlaceholderAction("Lihat menu #5") { navController.navigate(Routes.adminMenu(5)) }),
-                )
+                AdminPendingRoute(onMenuClick = { menuId -> navController.navigate(Routes.adminMenu(menuId)) })
             }
             composable(Routes.ADMIN_MENUS) {
-                PlaceholderScreen("Semua Menu", "Dibangun di Phase 11.")
+                AdminMenusRoute(onMenuClick = { menuId -> navController.navigate(Routes.adminMenu(menuId)) })
             }
             composable(
                 route = Routes.ADMIN_MENU,
                 arguments = listOf(navArgument(Routes.ARG_MENU_ID) { type = NavType.IntType }),
-            ) { entry ->
-                PlaceholderScreen(
-                    title = "Menu #${entry.arguments?.getInt(Routes.ARG_MENU_ID)}",
-                    description = "Edit menu dan verifikasi gizi dibangun di Phase 11.",
-                    onBack = navController::popBackStack,
-                )
+            ) {
+                AdminMenuDetailRoute(onBack = navController::popBackStack)
             }
             composable(Routes.ADMIN_SELLERS) {
-                PlaceholderScreen(
-                    title = "Penjual",
-                    description = "Daftar penjual dibangun di Phase 11.",
-                    actions = listOf(
-                        PlaceholderAction("Tambah penjual") { navController.navigate(Routes.ADMIN_SELLER_NEW) },
-                    ),
-                )
+                AdminSellersRoute(onAddSeller = { navController.navigate(Routes.ADMIN_SELLER_NEW) })
             }
             composable(Routes.ADMIN_SELLER_NEW) {
-                PlaceholderScreen("Penjual Baru", "Dibangun di Phase 11.", onBack = navController::popBackStack)
+                NewSellerRoute(onBack = navController::popBackStack, onSaved = navController::popBackStack)
             }
         }
     }

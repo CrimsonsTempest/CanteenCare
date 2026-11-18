@@ -7,6 +7,7 @@ import com.kelompok10.canteencare.data.repository.SellerRepository
 import com.kelompok10.canteencare.domain.model.MenuCategory
 import com.kelompok10.canteencare.domain.model.MenuDraft
 import com.kelompok10.canteencare.domain.model.Nutrient
+import com.kelompok10.canteencare.domain.validator.MenuField
 import com.kelompok10.canteencare.domain.model.Nutrition
 import com.kelompok10.canteencare.domain.validator.MenuFormValidator
 import dagger.hilt.android.lifecycle.HiltViewModel

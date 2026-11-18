@@ -1,5 +1,8 @@
 package com.kelompok10.canteencare.domain.validator
 
+/** Kolom form menu yang bisa salah isi (selain kolom gizi). */
+enum class MenuField { NAME, PRICE, STOCK, IMAGE_URL }
+
 /** Aturan isian form menu (penjual dan admin) serta edit stok. */
 object MenuFormValidator {
 

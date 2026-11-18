@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -40,6 +39,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kelompok10.canteencare.domain.model.MenuCategory
 import com.kelompok10.canteencare.domain.model.Nutrient
+import com.kelompok10.canteencare.domain.validator.MenuField
+import com.kelompok10.canteencare.ui.components.FormTextField
 import com.kelompok10.canteencare.ui.components.NoticeCard
 import com.kelompok10.canteencare.ui.theme.CanteenCareTheme
 
@@ -107,7 +108,7 @@ fun NewMenuScreen(
         ) {
             NoticeCard("Menu akan diverifikasi admin sebelum tampil untuk pembeli.")
 
-            FormField(uiState.name, onNameChange, "Nama menu", MenuField.NAME in uiState.invalidFields, "Nama menu wajib diisi")
+            FormTextField(uiState.name, onNameChange, "Nama menu", MenuField.NAME in uiState.invalidFields, "Nama menu wajib diisi")
             OutlinedTextField(
                 value = uiState.description,
                 onValueChange = onDescriptionChange,
@@ -127,16 +128,16 @@ fun NewMenuScreen(
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                FormField(
+                FormTextField(
                     uiState.price, onPriceChange, "Harga (Rp)", MenuField.PRICE in uiState.invalidFields,
                     "Bilangan bulat ≥ 0", KeyboardType.Number, Modifier.weight(1f),
                 )
-                FormField(
+                FormTextField(
                     uiState.stock, onStockChange, "Stok", MenuField.STOCK in uiState.invalidFields,
                     "Bilangan bulat ≥ 0", KeyboardType.Number, Modifier.weight(1f),
                 )
             }
-            FormField(
+            FormTextField(
                 uiState.imageUrl, onImageUrlChange, "URL gambar (opsional)", MenuField.IMAGE_URL in uiState.invalidFields,
                 "Harus diawali http:// atau https://", KeyboardType.Uri,
             )
@@ -151,7 +152,7 @@ fun NewMenuScreen(
             Nutrient.entries.chunked(2).forEach { pair ->
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     pair.forEach { nutrient ->
-                        FormField(
+                        FormTextField(
                             value = uiState.nutritionInputs[nutrient].orEmpty(),
                             onValueChange = { onNutritionChange(nutrient, it) },
                             label = "${nutrient.label} (${nutrient.unit})",
@@ -168,33 +169,6 @@ fun NewMenuScreen(
             }
         }
     }
-}
-
-@Composable
-private fun FormField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    isError: Boolean,
-    errorText: String,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    modifier: Modifier = Modifier.fillMaxWidth(),
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label) },
-        isError = isError,
-        supportingText = if (isError) {
-            { Text(errorText) }
-        } else {
-            null
-        },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        shape = MaterialTheme.shapes.medium,
-        modifier = modifier,
-    )
 }
 
 @Composable

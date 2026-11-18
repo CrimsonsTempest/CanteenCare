@@ -34,12 +34,5 @@ fun MenuDraft.toRequest() = CreateMenuRequestDto(
     price = price,
     stock = stock,
     imageUrl = imageUrl,
-    nutrition = NutritionRequestDto(
-        calories = nutrition.calories,
-        carbs = nutrition.carbs,
-        protein = nutrition.protein,
-        fat = nutrition.fat,
-        salt = nutrition.salt,
-        sugar = nutrition.sugar,
-    ),
+    nutrition = nutrition.toRequest(),
 )

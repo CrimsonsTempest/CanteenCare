@@ -9,6 +9,8 @@ object AuthValidator {
 
     private val EMAIL_PATTERN = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
 
+    fun isValidEmail(email: String): Boolean = EMAIL_PATTERN.matches(email.trim())
+
     fun validateLogin(email: String, password: String): String? = when {
         email.isBlank() -> "Email wajib diisi."
         !EMAIL_PATTERN.matches(email.trim()) -> "Format email tidak valid."
