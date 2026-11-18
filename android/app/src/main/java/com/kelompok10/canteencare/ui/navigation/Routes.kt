@@ -20,7 +20,8 @@ object Routes {
 
     // PEMBELI
     const val HOME = "home"
-    const val VENDOR = "vendor/{$ARG_VENDOR_ID}"
+    /** menuId opsional: jika diisi, detail menu itu langsung dibuka (dari hasil pencarian). */
+    const val VENDOR = "vendor/{$ARG_VENDOR_ID}?$ARG_MENU_ID={$ARG_MENU_ID}"
     const val CART = "cart"
     const val ORDER = "order/{$ARG_ORDER_ID}"
     const val HISTORY = "history"
@@ -40,7 +41,8 @@ object Routes {
     const val ADMIN_SELLERS = "admin_sellers"
     const val ADMIN_SELLER_NEW = "admin_seller_new"
 
-    fun vendor(vendorId: Int) = "vendor/$vendorId"
+    fun vendor(vendorId: Int, menuId: Int? = null) =
+        if (menuId == null) "vendor/$vendorId" else "vendor/$vendorId?$ARG_MENU_ID=$menuId"
     fun order(orderId: Int) = "order/$orderId"
     fun sellerOrder(orderId: Int) = "seller_order/$orderId"
     fun adminMenu(menuId: Int) = "admin_menu/$menuId"

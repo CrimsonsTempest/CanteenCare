@@ -2,6 +2,7 @@ package com.kelompok10.canteencare.core.database
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
@@ -10,6 +11,9 @@ import kotlinx.coroutines.flow.Flow
 interface CartDao {
     @Query("SELECT * FROM cart_items ORDER BY name")
     fun observeAll(): Flow<List<CartItemEntity>>
+
+    @Query("SELECT * FROM cart_items")
+    suspend fun getAll(): List<CartItemEntity>
 
     @Upsert
     suspend fun upsert(item: CartItemEntity)
@@ -22,4 +26,11 @@ interface CartDao {
 
     @Query("DELETE FROM cart_items")
     suspend fun clear()
+
+    /** Kosongkan lalu isi ulang dalam satu transaksi, jadi keranjang tidak pernah setengah kosong. */
+    @Transaction
+    suspend fun replaceAll(item: CartItemEntity) {
+        clear()
+        upsert(item)
+    }
 }

@@ -25,6 +25,8 @@ import com.kelompok10.canteencare.ui.auth.RegisterRoute
 import com.kelompok10.canteencare.ui.auth.SplashRoute
 import com.kelompok10.canteencare.ui.components.PlaceholderAction
 import com.kelompok10.canteencare.ui.components.PlaceholderScreen
+import com.kelompok10.canteencare.ui.pembeli.home.HomeRoute
+import com.kelompok10.canteencare.ui.pembeli.vendor.VendorRoute
 import com.kelompok10.canteencare.ui.profile.ProfileRoute
 import kotlinx.coroutines.launch
 
@@ -113,24 +115,27 @@ fun CanteenCareNavHost(
 
             // ---------- PEMBELI ----------
             composable(Routes.HOME) {
-                PlaceholderScreen(
-                    title = "Beranda",
-                    description = "Daftar stan dan pencarian menu dibangun di Phase 6.",
-                    actions = listOf(
-                        PlaceholderAction("Buka stan #1") { navController.navigate(Routes.vendor(1)) },
-                        PlaceholderAction("Keranjang") { navController.navigate(Routes.CART) },
-                    ),
+                HomeRoute(
+                    onVendorClick = { vendorId -> navController.navigate(Routes.vendor(vendorId)) },
+                    onMenuClick = { vendorId, menuId -> navController.navigate(Routes.vendor(vendorId, menuId)) },
+                    onCartClick = { navController.navigate(Routes.CART) },
                 )
             }
             composable(
                 route = Routes.VENDOR,
-                arguments = listOf(navArgument(Routes.ARG_VENDOR_ID) { type = NavType.IntType }),
-            ) { entry ->
-                val vendorId = entry.arguments?.getInt(Routes.ARG_VENDOR_ID)
-                PlaceholderScreen(
-                    title = "Stan #$vendorId",
-                    description = "Menu stan dan detail gizi dibangun di Phase 6.",
+                arguments = listOf(
+                    navArgument(Routes.ARG_VENDOR_ID) { type = NavType.IntType },
+                    // Argumen opsional: -1 berarti tidak ada menu yang langsung dibuka
+                    navArgument(Routes.ARG_MENU_ID) {
+                        type = NavType.IntType
+                        defaultValue = -1
+                    },
+                ),
+            ) {
+                // vendorId dan menuId dibaca VendorViewModel lewat SavedStateHandle
+                VendorRoute(
                     onBack = navController::popBackStack,
+                    onCartClick = { navController.navigate(Routes.CART) },
                 )
             }
             composable(Routes.CART) {
