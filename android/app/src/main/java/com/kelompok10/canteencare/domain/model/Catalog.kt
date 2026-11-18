@@ -38,8 +38,8 @@ data class CartItem(
     val vendorId: Int,
     val vendorName: String,
     val name: String,
-    val price: Int,
+    override val price: Int,
     val stock: Int,
-    val quantity: Int,
-    val nutrition: Nutrition,
-)
+    override val quantity: Int,
+    override val nutrition: Nutrition,
+) : LineItem

@@ -1,10 +1,12 @@
 package com.kelompok10.canteencare.core.network
 
 import com.kelompok10.canteencare.data.remote.dto.AuthResponseDto
+import com.kelompok10.canteencare.data.remote.dto.CreateOrderRequestDto
 import com.kelompok10.canteencare.data.remote.dto.FcmTokenRequestDto
 import com.kelompok10.canteencare.data.remote.dto.LoginRequestDto
 import com.kelompok10.canteencare.data.remote.dto.MenuDto
 import com.kelompok10.canteencare.data.remote.dto.MessageDto
+import com.kelompok10.canteencare.data.remote.dto.OrderDto
 import com.kelompok10.canteencare.data.remote.dto.RegisterRequestDto
 import com.kelompok10.canteencare.data.remote.dto.UserDto
 import com.kelompok10.canteencare.data.remote.dto.VendorDto
@@ -47,4 +49,11 @@ interface ApiService {
 
     @GET("menus")
     suspend fun searchMenus(@Query("search") search: String): List<MenuDto>
+
+    // ---------- Pesanan (pembeli) ----------
+    @POST("orders")
+    suspend fun createOrder(@Body body: CreateOrderRequestDto): OrderDto
+
+    @GET("orders/{id}")
+    suspend fun getOrder(@Path("id") orderId: Int): OrderDto
 }

@@ -25,7 +25,9 @@ import com.kelompok10.canteencare.ui.auth.RegisterRoute
 import com.kelompok10.canteencare.ui.auth.SplashRoute
 import com.kelompok10.canteencare.ui.components.PlaceholderAction
 import com.kelompok10.canteencare.ui.components.PlaceholderScreen
+import com.kelompok10.canteencare.ui.pembeli.cart.CartRoute
 import com.kelompok10.canteencare.ui.pembeli.home.HomeRoute
+import com.kelompok10.canteencare.ui.pembeli.order.OrderDetailRoute
 import com.kelompok10.canteencare.ui.pembeli.vendor.VendorRoute
 import com.kelompok10.canteencare.ui.profile.ProfileRoute
 import kotlinx.coroutines.launch
@@ -139,22 +141,21 @@ fun CanteenCareNavHost(
                 )
             }
             composable(Routes.CART) {
-                PlaceholderScreen(
-                    title = "Keranjang",
-                    description = "Total harga dan total gizi dibangun di Phase 7.",
+                CartRoute(
                     onBack = navController::popBackStack,
-                    actions = listOf(PlaceholderAction("Lihat pesanan #1") { navController.navigate(Routes.order(1)) }),
+                    onOrderPlaced = { orderId ->
+                        // Ganti layar keranjang dengan detail pesanan, jadi Back tidak kembali ke keranjang kosong
+                        navController.navigate(Routes.order(orderId)) {
+                            popUpTo(Routes.CART) { inclusive = true }
+                        }
+                    },
                 )
             }
             composable(
                 route = Routes.ORDER,
                 arguments = listOf(navArgument(Routes.ARG_ORDER_ID) { type = NavType.IntType }),
-            ) { entry ->
-                PlaceholderScreen(
-                    title = "Pesanan #${entry.arguments?.getInt(Routes.ARG_ORDER_ID)}",
-                    description = "Detail pesanan dibangun di Phase 7.",
-                    onBack = navController::popBackStack,
-                )
+            ) {
+                OrderDetailRoute(onBack = navController::popBackStack)
             }
             composable(Routes.HISTORY) {
                 PlaceholderScreen(

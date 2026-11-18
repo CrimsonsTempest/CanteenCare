@@ -36,6 +36,22 @@ class DefaultCartRepository @Inject constructor(
     override suspend fun replaceCartWith(menu: Menu, quantity: Int) {
         cartDao.replaceAll(menu.toEntity(quantity.coerceAtMost(menu.stock)))
     }
+
+    override suspend fun updateQuantity(menuId: Int, quantity: Int) {
+        if (quantity <= 0) cartDao.delete(menuId) else cartDao.updateQuantity(menuId, quantity)
+    }
+
+    override suspend fun removeItem(menuId: Int) = cartDao.delete(menuId)
+
+    override suspend fun clear() = cartDao.clear()
+
+    override suspend fun syncStock(latestMenus: List<Menu>) {
+        val stockById = latestMenus.associate { it.id to it.stock }
+        cartDao.getAll().forEach { item ->
+            val stock = stockById[item.menuId] ?: 0 // tidak ada di daftar = sudah tidak dijual
+            if (stock <= 0) cartDao.delete(item.menuId) else cartDao.updateStock(item.menuId, stock)
+        }
+    }
 }
 
 private fun Menu.toEntity(quantity: Int): CartItemEntity {

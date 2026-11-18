@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -57,6 +58,7 @@ import com.kelompok10.canteencare.ui.components.ImageKind
 import com.kelompok10.canteencare.ui.components.LoadingView
 import com.kelompok10.canteencare.ui.components.imageKind
 import com.kelompok10.canteencare.ui.theme.CanteenCareTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun VendorRoute(
@@ -66,11 +68,13 @@ fun VendorRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    // Scope ini tidak ikut dibatalkan saat LaunchedEffect di bawah berganti key
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(uiState.message) {
-        uiState.message?.let {
+        uiState.message?.let { message ->
             viewModel.onMessageShown()
-            snackbarHostState.showSnackbar(it)
+            scope.launch { snackbarHostState.showSnackbar(message) }
         }
     }
 

@@ -23,4 +23,17 @@ interface CartRepository {
 
     /** Kosongkan keranjang lalu isi dengan menu ini (dipakai setelah user setuju ganti stan). */
     suspend fun replaceCartWith(menu: Menu, quantity: Int)
+
+    /** Ubah jumlah porsi. Jumlah 0 atau kurang berarti item dihapus dari keranjang. */
+    suspend fun updateQuantity(menuId: Int, quantity: Int)
+
+    suspend fun removeItem(menuId: Int)
+
+    suspend fun clear()
+
+    /**
+     * Samakan stok di keranjang dengan data menu terbaru dari server.
+     * Jumlah dipotong agar tidak melebihi stok; menu yang habis atau tidak tersedia dihapus.
+     */
+    suspend fun syncStock(latestMenus: List<Menu>)
 }
