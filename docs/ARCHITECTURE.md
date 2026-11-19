@@ -101,6 +101,8 @@ Tidak ada kode yang "menyuruh" layar memperbarui total. Semuanya mengalir lewat 
 
 Satu HP hanya terikat ke akun yang terakhir login di HP itu.
 
+Firebase bersifat opsional. Plugin `google-services` di `app/build.gradle.kts` hanya dipasang jika `google-services.json` ada, dan `FcmTokenManager` melewati pengiriman token jika Firebase tidak aktif. Backend juga melewati pengiriman notifikasi jika `firebase-service-account.json` tidak ada. Jadi semua fitur lain tetap berjalan tanpa Firebase.
+
 ## 5a. Upload Gambar Menu
 
 1. Penjual (form Menu Baru) atau admin (detail menu) menekan **Pilih Foto** di komponen `MenuImagePicker`. Komponen ini memakai Photo Picker bawaan Android, jadi tidak perlu izin galeri.

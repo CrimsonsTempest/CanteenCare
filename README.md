@@ -41,7 +41,7 @@ CanteenCare/
 - Python 3.11 atau lebih baru
 - Git
 - Android Studio (sudah termasuk Android SDK dan JDK)
-- Project Firebase, untuk push notification (lihat Setup Firebase)
+- (Opsional) Project Firebase, hanya untuk push notification (lihat Setup Firebase)
 
 ## Menjalankan Backend
 
@@ -62,7 +62,7 @@ copy .env.example .env
 ## Menjalankan Aplikasi Android
 
 1. Buka folder `android/` di Android Studio dengan **File → Open**, lalu tunggu Gradle sync selesai.
-2. Pastikan `android/app/google-services.json` ada. File ini tidak ikut di Git (lihat Setup Firebase).
+2. (Opsional) Taruh `android/app/google-services.json` jika ingin notifikasi aktif. Tanpa file ini aplikasi tetap bisa di-build dan dipakai normal.
 3. Nyalakan backend dulu, lalu tekan ▶ **Run**.
 
 **Alamat backend.** Aplikasi membaca alamat backend dari `android/local.properties`, dengan key `canteencare.baseUrl`:
@@ -91,7 +91,12 @@ Sesuaikan path `JAVA_HOME` dengan lokasi instalasi Android Studio di laptopmu.
 
 ## Setup Firebase
 
-Firebase dipakai hanya untuk push notification (FCM). Tanpa Firebase pun backend tetap berjalan, hanya notifikasinya yang tidak terkirim.
+Firebase **opsional** dan dipakai hanya untuk push notification (FCM). Tanpa file Firebase, backend dan aplikasi tetap berjalan normal: login, katalog, keranjang, pesanan, konfirmasi penjual, dan gizi harian semuanya bisa dipakai. Yang tidak ada hanya notifikasi di HP, jadi status pesanan dilihat dengan membuka Riwayat atau detail pesanan yang memperbarui diri tiap 10 detik.
+
+| File | Jika ada | Jika tidak ada |
+|---|---|---|
+| `android/app/google-services.json` | Aplikasi bisa menerima notifikasi | Aplikasi tetap di-build dan berjalan, notifikasi nonaktif |
+| `backend/firebase-service-account.json` | Backend mengirim notifikasi | Backend tetap berjalan, pengiriman notifikasi dilewati |
 
 **A. Membuat project Firebase**
 

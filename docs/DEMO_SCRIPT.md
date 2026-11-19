@@ -6,7 +6,7 @@ Target durasi sekitar 8–10 menit. Urutan ini menunjukkan ketiga peran (Admin, 
 
 1. **Nyalakan backend** dari folder `backend`:
    `.venv\Scripts\python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`.
-   Pastikan log menampilkan `Firebase siap, notifikasi aktif.`
+   Jika ingin menunjukkan notifikasi, pastikan log menampilkan `Firebase siap, notifikasi aktif.` Tanpa Firebase, adegan notifikasi dilewati dan status pesanan dilihat dari layar detail atau Riwayat.
 2. **Pastikan hanya ada satu server.** Jalankan `netstat -ano | findstr :8000`; hanya boleh ada satu PID yang `LISTENING`.
 3. **Reset data demo.** Buka http://localhost:8000/docs, login `admin@canteencare.id` / `admin123`, Authorize, lalu jalankan `POST /api/v1/admin/dev/reset-demo`. Dengan ini, contoh pesanan "hari ini" sesuai tanggal perekaman dan Nasi Ayam Geprek kembali PENDING.
 4. **Siapkan dua perangkat**, supaya notifikasi masuk ke akun yang benar:

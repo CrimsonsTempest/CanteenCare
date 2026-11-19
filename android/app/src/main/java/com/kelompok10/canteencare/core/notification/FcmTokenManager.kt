@@ -1,6 +1,8 @@
 package com.kelompok10.canteencare.core.notification
 
+import android.content.Context
 import android.util.Log
+import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
 import com.kelompok10.canteencare.core.datastore.SessionDataStore
 import com.kelompok10.canteencare.core.di.ApplicationScope
@@ -8,6 +10,7 @@ import com.kelompok10.canteencare.core.network.ApiResult
 import com.kelompok10.canteencare.core.network.ApiService
 import com.kelompok10.canteencare.core.network.safeApiCall
 import com.kelompok10.canteencare.data.remote.dto.FcmTokenRequestDto
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
@@ -21,9 +24,11 @@ import kotlin.coroutines.resumeWithException
 /**
  * Mengirim token FCM perangkat ini ke backend, supaya server tahu ke HP mana notifikasi dikirim.
  * Berjalan di background; kalau gagal hanya dicatat di log dan tidak mengganggu user.
+ * Jika Firebase tidak dipasang (tanpa google-services.json), proses ini dilewati.
  */
 @Singleton
 class FcmTokenManager @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val api: ApiService,
     private val sessionDataStore: SessionDataStore,
     @ApplicationScope private val appScope: CoroutineScope,
@@ -33,6 +38,11 @@ class FcmTokenManager @Inject constructor(
      * jika null, token saat ini diambil dari Firebase (setelah login atau saat aplikasi dibuka).
      */
     fun syncToken(newToken: String? = null) {
+        // Firebase hanya aktif jika google-services.json ada saat build
+        if (FirebaseApp.getApps(context).isEmpty()) {
+            Log.i(TAG, "Firebase tidak dipasang, notifikasi dinonaktifkan")
+            return
+        }
         appScope.launch {
             try {
                 // Token hanya bisa disimpan untuk user yang sedang login

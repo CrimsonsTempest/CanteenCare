@@ -5,7 +5,14 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
-    alias(libs.plugins.google.services)
+    alias(libs.plugins.google.services) apply false
+}
+
+// Firebase (notifikasi) bersifat opsional. Plugin google-services hanya dipasang jika
+// google-services.json ada di folder app/. Tanpa file itu aplikasi tetap bisa di-build dan
+// berjalan normal, hanya push notification yang tidak aktif.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
 }
 
 // BASE_URL dibaca dari local.properties (key: canteencare.baseUrl).
