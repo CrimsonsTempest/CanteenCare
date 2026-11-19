@@ -115,6 +115,15 @@ Body/respons: `target_calories, target_carbs, target_protein, target_fat, target
 
 Menu berstatus ARCHIVED tidak bisa disetujui atau ditolak (409 `INVALID_MENU_STATE`).
 
+## Upload Gambar — PENJUAL dan ADMIN
+
+| Method | Path | Keterangan |
+|---|---|---|
+| POST | `/uploads/menu-image` | `multipart/form-data` dengan bagian `file`. PNG, JPG, atau WEBP, maksimal 2 MB. Respons 201 `{ "image_url": "/uploads/menus/<acak>.png" }`. Jenis file dicek dari isinya: 400 `INVALID_IMAGE` atau `IMAGE_TOO_LARGE` |
+| GET | `/uploads/menus/{file}` | Di luar `/api/v1`, tanpa token. Menyajikan gambar yang sudah di-upload |
+
+Alur pemakaian: upload dulu, lalu simpan `image_url` dari respons ke body `POST /seller/menus` atau `PUT /admin/menus/{id}`. Path disimpan relatif, dan aplikasi Android melengkapinya dengan alamat server (`ImageUrl.resolve`).
+
 ## Dev
 
 | Method | Path | Keterangan |

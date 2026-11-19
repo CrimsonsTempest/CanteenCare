@@ -11,7 +11,10 @@ data class NewMenuUiState(
     val category: MenuCategory = MenuCategory.MAKANAN,
     val price: String = "",
     val stock: String = "",
+    /** Path gambar di server setelah upload berhasil; kosong jika belum ada gambar. */
     val imageUrl: String = "",
+    val isUploadingImage: Boolean = false,
+    val imageError: String? = null,
     val nutritionInputs: Map<Nutrient, String> = Nutrient.entries.associateWith { "" },
     val invalidFields: Set<MenuField> = emptySet(),
     val invalidNutrients: Set<Nutrient> = emptySet(),

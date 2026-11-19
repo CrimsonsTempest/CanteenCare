@@ -350,7 +350,7 @@ Ambil dari emulator 1080×2400 setelah menjalankan `reset-demo`. Ukuran yang sam
 | 20 | Form Menu Baru | Gapura | Pendukung |
 | 21 | Detail menu admin: tombol Setujui nonaktif sebelum verifikasi | Admin | Pendukung |
 | 22 | Detail menu admin setelah verifikasi dan disetujui | Admin | Pendukung |
-| 23 | Hasil `pytest` 69 passed dan `testDebugUnitTest` | – | Pengujian |
+| 23 | Hasil `pytest` 74 passed dan `testDebugUnitTest` | – | Pengujian |
 | 24 | Swagger UI `/docs` | – | Pengujian / D |
 
 Tips:

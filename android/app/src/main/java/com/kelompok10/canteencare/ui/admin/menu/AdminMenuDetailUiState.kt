@@ -20,6 +20,8 @@ data class AdminMenuDetailUiState(
     val category: MenuCategory = MenuCategory.MAKANAN,
     val price: String = "",
     val imageUrl: String = "",
+    val isUploadingImage: Boolean = false,
+    val imageError: String? = null,
     val invalidFields: Set<MenuField> = emptySet(),
     // Form gizi
     val nutritionInputs: Map<Nutrient, String> = emptyMap(),

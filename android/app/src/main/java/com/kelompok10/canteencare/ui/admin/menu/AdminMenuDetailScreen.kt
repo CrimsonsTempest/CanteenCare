@@ -1,5 +1,6 @@
 package com.kelompok10.canteencare.ui.admin.menu
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -57,6 +58,8 @@ import com.kelompok10.canteencare.domain.model.Nutrition
 import com.kelompok10.canteencare.domain.validator.MenuField
 import com.kelompok10.canteencare.ui.components.ErrorView
 import com.kelompok10.canteencare.ui.components.FormTextField
+import com.kelompok10.canteencare.ui.components.MenuImagePicker
+import com.kelompok10.canteencare.ui.components.imageKind
 import com.kelompok10.canteencare.ui.components.LoadingView
 import com.kelompok10.canteencare.ui.components.MenuStatusChip
 import com.kelompok10.canteencare.ui.components.VerifiedBadge
@@ -89,7 +92,8 @@ fun AdminMenuDetailRoute(
             onDescriptionChange = viewModel::onDescriptionChange,
             onCategoryChange = viewModel::onCategoryChange,
             onPriceChange = viewModel::onPriceChange,
-            onImageUrlChange = viewModel::onImageUrlChange,
+            onImagePick = viewModel::onImagePicked,
+            onImageRemove = viewModel::onImageRemoved,
             onSaveMenu = viewModel::saveMenuData,
             onNutritionChange = viewModel::onNutritionChange,
             onVerifyNutrition = viewModel::verifyNutrition,
@@ -117,7 +121,8 @@ data class AdminMenuActions(
     val onDescriptionChange: (String) -> Unit,
     val onCategoryChange: (MenuCategory) -> Unit,
     val onPriceChange: (String) -> Unit,
-    val onImageUrlChange: (String) -> Unit,
+    val onImagePick: (Uri) -> Unit,
+    val onImageRemove: () -> Unit,
     val onSaveMenu: () -> Unit,
     val onNutritionChange: (Nutrient, String) -> Unit,
     val onVerifyNutrition: () -> Unit,
@@ -220,13 +225,17 @@ private fun MenuDataCard(uiState: AdminMenuDetailUiState, actions: AdminMenuActi
             uiState.price, actions.onPriceChange, "Harga (Rp)", MenuField.PRICE in uiState.invalidFields,
             "Bilangan bulat ≥ 0", KeyboardType.Number,
         )
-        FormTextField(
-            uiState.imageUrl, actions.onImageUrlChange, "URL gambar (opsional)", MenuField.IMAGE_URL in uiState.invalidFields,
-            "Harus diawali http:// atau https://", KeyboardType.Uri,
+        MenuImagePicker(
+            imageUrl = uiState.imageUrl,
+            kind = uiState.category.imageKind(),
+            isUploading = uiState.isUploadingImage,
+            errorMessage = uiState.imageError,
+            onPick = actions.onImagePick,
+            onRemove = actions.onImageRemove,
         )
         FilledTonalButton(
             onClick = actions.onSaveMenu,
-            enabled = !uiState.isSavingMenu,
+            enabled = !uiState.isSavingMenu && !uiState.isUploadingImage,
             modifier = Modifier.fillMaxWidth(),
         ) { Text(if (uiState.isSavingMenu) "Menyimpan..." else "Simpan Data Menu") }
     }
@@ -327,7 +336,7 @@ private fun AdminMenuDetailScreenPreview() {
                 nutritionInputs = Nutrient.entries.associateWith { "0" },
             ),
             snackbarHostState = SnackbarHostState(),
-            actions = AdminMenuActions({}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, {}, {}, {}),
+            actions = AdminMenuActions({}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, {}, {}, {}),
         )
     }
 }

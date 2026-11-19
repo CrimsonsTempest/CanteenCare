@@ -1,10 +1,12 @@
 package com.kelompok10.canteencare.ui.admin.menu
 
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kelompok10.canteencare.core.network.ApiResult
 import com.kelompok10.canteencare.data.repository.AdminRepository
+import com.kelompok10.canteencare.data.repository.ImageRepository
 import com.kelompok10.canteencare.domain.model.Menu
 import com.kelompok10.canteencare.domain.model.MenuCategory
 import com.kelompok10.canteencare.domain.model.MenuEdit
@@ -26,6 +28,7 @@ import javax.inject.Inject
 class AdminMenuDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val adminRepository: AdminRepository,
+    private val imageRepository: ImageRepository,
 ) : ViewModel() {
 
     private val menuId: Int = checkNotNull(savedStateHandle[Routes.ARG_MENU_ID])
@@ -53,17 +56,27 @@ class AdminMenuDetailViewModel @Inject constructor(
     fun onDescriptionChange(v: String) = _uiState.update { it.copy(description = v) }
     fun onCategoryChange(v: MenuCategory) = _uiState.update { it.copy(category = v) }
     fun onPriceChange(v: String) = _uiState.update { it.copy(price = v, invalidFields = it.invalidFields - MenuField.PRICE) }
-    fun onImageUrlChange(v: String) =
-        _uiState.update { it.copy(imageUrl = v, invalidFields = it.invalidFields - MenuField.IMAGE_URL) }
+
+    /** Gambar baru langsung di-upload; baru tersimpan ke menu setelah "Simpan Data Menu" ditekan. */
+    fun onImagePicked(uri: Uri) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isUploadingImage = true, imageError = null) }
+            when (val result = imageRepository.uploadMenuImage(uri)) {
+                is ApiResult.Success -> _uiState.update { it.copy(isUploadingImage = false, imageUrl = result.data) }
+                is ApiResult.Error -> _uiState.update { it.copy(isUploadingImage = false, imageError = result.message) }
+            }
+        }
+    }
+
+    fun onImageRemoved() = _uiState.update { it.copy(imageUrl = "", imageError = null) }
 
     fun saveMenuData() {
         val state = _uiState.value
-        if (state.isSavingMenu) return
+        if (state.isSavingMenu || state.isUploadingImage) return
         val price = MenuFormValidator.parseNonNegativeInt(state.price)
         val invalid = buildSet {
             if (state.name.isBlank()) add(MenuField.NAME)
             if (price == null) add(MenuField.PRICE)
-            if (!MenuFormValidator.isValidImageUrl(state.imageUrl)) add(MenuField.IMAGE_URL)
         }
         if (invalid.isNotEmpty()) {
             _uiState.update { it.copy(invalidFields = invalid) }
@@ -74,7 +87,7 @@ class AdminMenuDetailViewModel @Inject constructor(
             description = state.description.trim().takeIf { it.isNotEmpty() },
             category = state.category,
             price = price!!,
-            imageUrl = state.imageUrl.trim().takeIf { it.isNotEmpty() },
+            imageUrl = state.imageUrl.takeIf { it.isNotEmpty() },
         )
         viewModelScope.launch {
             _uiState.update { it.copy(isSavingMenu = true) }
@@ -166,6 +179,7 @@ class AdminMenuDetailViewModel @Inject constructor(
             category = menu.category,
             price = menu.price.toString(),
             imageUrl = menu.imageUrl.orEmpty(),
+            imageError = null,
             invalidFields = emptySet(),
             nutritionInputs = Nutrient.entries.associateWith { nutrient ->
                 menu.nutrition?.let { n -> TargetValidator.toInput(n.valueOf(nutrient)) }.orEmpty()

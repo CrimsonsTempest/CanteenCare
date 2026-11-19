@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.size
 import coil3.compose.SubcomposeAsyncImage
+import com.kelompok10.canteencare.core.util.ImageUrl
 import com.kelompok10.canteencare.domain.model.MenuCategory
 import com.kelompok10.canteencare.ui.theme.CanteenCareTheme
 
@@ -33,7 +34,7 @@ enum class ImageKind(val icon: ImageVector) {
 fun MenuCategory.imageKind(): ImageKind = if (this == MenuCategory.MINUMAN) ImageKind.DRINK else ImageKind.FOOD
 
 /**
- * Gambar menu atau stan dari URL memakai Coil.
+ * Gambar menu atau stan dari URL memakai Coil. Path hasil upload dilengkapi dulu oleh [ImageUrl].
  * Jika URL kosong atau gagal dimuat, tampil kotak hijau lembut dengan ikon makanan/minuman/stan.
  */
 @Composable
@@ -43,7 +44,7 @@ fun FoodImage(imageUrl: String?, kind: ImageKind, modifier: Modifier = Modifier)
         ImagePlaceholder(kind, shapedModifier)
     } else {
         SubcomposeAsyncImage(
-            model = imageUrl,
+            model = ImageUrl.resolve(imageUrl),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             loading = { ImagePlaceholder(kind, Modifier.fillMaxSize()) },

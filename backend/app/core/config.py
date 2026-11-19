@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./canteencare.db"
     FIREBASE_CREDENTIALS: str = "firebase-service-account.json"
     TIMEZONE: str = "Asia/Jakarta"
+    # Folder penyimpanan gambar menu yang di-upload
+    UPLOAD_DIR: str = "uploads"
 
 
 @lru_cache
