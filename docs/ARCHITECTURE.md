@@ -101,15 +101,6 @@ Tidak ada kode yang "menyuruh" layar memperbarui total. Semuanya mengalir lewat 
 
 Satu HP hanya terikat ke akun yang terakhir login di HP itu.
 
-## 5a. Upload Gambar Menu
-
-1. Penjual (form Menu Baru) atau admin (detail menu) menekan **Pilih Foto** di komponen `MenuImagePicker`. Komponen ini memakai Photo Picker bawaan Android, jadi tidak perlu izin galeri.
-2. ViewModel memanggil `ImageRepository.uploadMenuImage(uri)`. `DefaultImageRepository` membaca isi file, mengecek ukurannya maksimal 2 MB, lalu mengirimnya ke `POST /uploads/menu-image` sebagai multipart.
-3. Server mengecek jenis file dari isinya, menyimpannya di `backend/uploads/menus/`, lalu membalas path relatif seperti `/uploads/menus/abc.png`.
-4. Path itu disimpan sebagai `image_url` menu saat form disimpan. `FoodImage` melengkapinya menjadi URL penuh lewat `ImageUrl.resolve()`, sehingga gambar tetap muncul di emulator maupun HP walau alamat servernya berbeda.
-
-Gambar tersimpan di laptop yang menjalankan backend dan tidak ikut ke GitHub.
-
 ## 6. Backend Singkat
 
 ```
@@ -154,5 +145,5 @@ Contoh: layar "Daftar Favorit" untuk pembeli.
 
 | Bagian | Perintah | Isi |
 |---|---|---|
-| Backend | `cd backend` lalu `.venv\Scripts\python -m pytest -q` | 74 tes: auth, peran, visibilitas katalog, validasi pesanan, stok, status pesanan, tanggal WIB, target, notifikasi, upload gambar |
-| Android | `cd android` lalu `.\gradlew testDebugUnitTest` | 44 tes JUnit: `NutritionCalculator` (Fungsi 1–3), formatter, validator, parser error, alamat gambar |
+| Backend | `cd backend` lalu `.venv\Scripts\python -m pytest -q` | 69 tes: auth, peran, visibilitas katalog, validasi pesanan, stok, status pesanan, tanggal WIB, target, notifikasi |
+| Android | `cd android` lalu `.\gradlew testDebugUnitTest` | 41 tes JUnit: `NutritionCalculator` (Fungsi 1–3), formatter, validator, parser error |

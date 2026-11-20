@@ -1,6 +1,5 @@
 package com.kelompok10.canteencare.ui.penjual.menunew
 
-import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,8 +41,6 @@ import com.kelompok10.canteencare.domain.model.MenuCategory
 import com.kelompok10.canteencare.domain.model.Nutrient
 import com.kelompok10.canteencare.domain.validator.MenuField
 import com.kelompok10.canteencare.ui.components.FormTextField
-import com.kelompok10.canteencare.ui.components.MenuImagePicker
-import com.kelompok10.canteencare.ui.components.imageKind
 import com.kelompok10.canteencare.ui.components.NoticeCard
 import com.kelompok10.canteencare.ui.theme.CanteenCareTheme
 
@@ -67,8 +64,7 @@ fun NewMenuRoute(
         onCategoryChange = viewModel::onCategoryChange,
         onPriceChange = viewModel::onPriceChange,
         onStockChange = viewModel::onStockChange,
-        onImagePick = viewModel::onImagePicked,
-        onImageRemove = viewModel::onImageRemoved,
+        onImageUrlChange = viewModel::onImageUrlChange,
         onNutritionChange = viewModel::onNutritionChange,
         onSubmit = viewModel::submit,
     )
@@ -84,8 +80,7 @@ fun NewMenuScreen(
     onCategoryChange: (MenuCategory) -> Unit,
     onPriceChange: (String) -> Unit,
     onStockChange: (String) -> Unit,
-    onImagePick: (Uri) -> Unit,
-    onImageRemove: () -> Unit,
+    onImageUrlChange: (String) -> Unit,
     onNutritionChange: (Nutrient, String) -> Unit,
     onSubmit: () -> Unit,
 ) {
@@ -100,7 +95,7 @@ fun NewMenuScreen(
                 },
             )
         },
-        bottomBar = { SubmitBar(uiState.isSaving || uiState.isUploadingImage, uiState.isSaving, onSubmit) },
+        bottomBar = { SubmitBar(uiState.isSaving, onSubmit) },
     ) { padding ->
         Column(
             modifier = Modifier
@@ -142,13 +137,9 @@ fun NewMenuScreen(
                     "Bilangan bulat ≥ 0", KeyboardType.Number, Modifier.weight(1f),
                 )
             }
-            MenuImagePicker(
-                imageUrl = uiState.imageUrl,
-                kind = uiState.category.imageKind(),
-                isUploading = uiState.isUploadingImage,
-                errorMessage = uiState.imageError,
-                onPick = onImagePick,
-                onRemove = onImageRemove,
+            FormTextField(
+                uiState.imageUrl, onImageUrlChange, "URL gambar (opsional)", MenuField.IMAGE_URL in uiState.invalidFields,
+                "Harus diawali http:// atau https://", KeyboardType.Uri,
             )
 
             Text("Estimasi gizi per porsi", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 8.dp))
@@ -181,11 +172,11 @@ fun NewMenuScreen(
 }
 
 @Composable
-private fun SubmitBar(isBusy: Boolean, isSaving: Boolean, onSubmit: () -> Unit) {
+private fun SubmitBar(isSaving: Boolean, onSubmit: () -> Unit) {
     Surface(tonalElevation = 3.dp, shadowElevation = 8.dp) {
         Button(
             onClick = onSubmit,
-            enabled = !isBusy,
+            enabled = !isSaving,
             shape = MaterialTheme.shapes.medium,
             modifier = Modifier
                 .fillMaxWidth()
@@ -209,7 +200,7 @@ private fun NewMenuScreenPreview() {
         NewMenuScreen(
             uiState = NewMenuUiState(name = "Nasi Rawon", invalidFields = setOf(MenuField.PRICE), invalidNutrients = setOf(Nutrient.SUGAR)),
             onBack = {}, onNameChange = {}, onDescriptionChange = {}, onCategoryChange = {}, onPriceChange = {},
-            onStockChange = {}, onImagePick = {}, onImageRemove = {}, onNutritionChange = { _, _ -> }, onSubmit = {},
+            onStockChange = {}, onImageUrlChange = {}, onNutritionChange = { _, _ -> }, onSubmit = {},
         )
     }
 }

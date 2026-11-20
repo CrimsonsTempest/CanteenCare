@@ -8,11 +8,9 @@ import com.kelompok10.canteencare.data.repository.DefaultAdminRepository
 import com.kelompok10.canteencare.data.repository.DefaultAuthRepository
 import com.kelompok10.canteencare.data.repository.DefaultCartRepository
 import com.kelompok10.canteencare.data.repository.DefaultCatalogRepository
-import com.kelompok10.canteencare.data.repository.DefaultImageRepository
 import com.kelompok10.canteencare.data.repository.DefaultNutritionRepository
 import com.kelompok10.canteencare.data.repository.DefaultOrderRepository
 import com.kelompok10.canteencare.data.repository.DefaultSellerRepository
-import com.kelompok10.canteencare.data.repository.ImageRepository
 import com.kelompok10.canteencare.data.repository.NutritionRepository
 import com.kelompok10.canteencare.data.repository.OrderRepository
 import com.kelompok10.canteencare.data.repository.SellerRepository
@@ -46,7 +44,4 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindSellerRepository(impl: DefaultSellerRepository): SellerRepository
-
-    @Binds
-    abstract fun bindImageRepository(impl: DefaultImageRepository): ImageRepository
 }

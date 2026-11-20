@@ -1,10 +1,8 @@
 package com.kelompok10.canteencare.ui.penjual.menunew
 
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kelompok10.canteencare.core.network.ApiResult
-import com.kelompok10.canteencare.data.repository.ImageRepository
 import com.kelompok10.canteencare.data.repository.SellerRepository
 import com.kelompok10.canteencare.domain.model.MenuCategory
 import com.kelompok10.canteencare.domain.model.MenuDraft
@@ -23,7 +21,6 @@ import javax.inject.Inject
 @HiltViewModel
 class NewMenuViewModel @Inject constructor(
     private val sellerRepository: SellerRepository,
-    private val imageRepository: ImageRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NewMenuUiState())
@@ -39,18 +36,8 @@ class NewMenuViewModel @Inject constructor(
 
     fun onStockChange(value: String) = _uiState.update { it.copy(stock = value, invalidFields = it.invalidFields - MenuField.STOCK) }
 
-    /** Foto dipilih dari galeri: langsung di-upload, lalu path dari server disimpan di state. */
-    fun onImagePicked(uri: Uri) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isUploadingImage = true, imageError = null) }
-            when (val result = imageRepository.uploadMenuImage(uri)) {
-                is ApiResult.Success -> _uiState.update { it.copy(isUploadingImage = false, imageUrl = result.data) }
-                is ApiResult.Error -> _uiState.update { it.copy(isUploadingImage = false, imageError = result.message) }
-            }
-        }
-    }
-
-    fun onImageRemoved() = _uiState.update { it.copy(imageUrl = "", imageError = null) }
+    fun onImageUrlChange(value: String) =
+        _uiState.update { it.copy(imageUrl = value, invalidFields = it.invalidFields - MenuField.IMAGE_URL) }
 
     fun onNutritionChange(nutrient: Nutrient, value: String) = _uiState.update {
         it.copy(nutritionInputs = it.nutritionInputs + (nutrient to value), invalidNutrients = it.invalidNutrients - nutrient)
@@ -58,8 +45,7 @@ class NewMenuViewModel @Inject constructor(
 
     fun submit() {
         val state = _uiState.value
-        // Tunggu upload gambar selesai supaya menu tidak tersimpan tanpa gambarnya
-        if (state.isSaving || state.isUploadingImage) return
+        if (state.isSaving) return
 
         // Validasi semua kolom sekaligus, supaya penjual melihat semua yang salah dalam satu kali tekan
         val price = MenuFormValidator.parseNonNegativeInt(state.price)
@@ -71,6 +57,7 @@ class NewMenuViewModel @Inject constructor(
             if (state.name.isBlank()) add(MenuField.NAME)
             if (price == null) add(MenuField.PRICE)
             if (stock == null) add(MenuField.STOCK)
+            if (!MenuFormValidator.isValidImageUrl(state.imageUrl)) add(MenuField.IMAGE_URL)
         }
         val invalidNutrients = nutrition.filterValues { it == null }.keys
         if (invalidFields.isNotEmpty() || invalidNutrients.isNotEmpty()) {
@@ -84,7 +71,7 @@ class NewMenuViewModel @Inject constructor(
             category = state.category,
             price = price!!,
             stock = stock!!,
-            imageUrl = state.imageUrl.takeIf { it.isNotEmpty() },
+            imageUrl = state.imageUrl.trim().takeIf { it.isNotEmpty() },
             nutrition = Nutrition(
                 calories = nutrition.getValue(Nutrient.CALORIES)!!,
                 carbs = nutrition.getValue(Nutrient.CARBS)!!,

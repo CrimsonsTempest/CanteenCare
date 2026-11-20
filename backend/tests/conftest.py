@@ -10,8 +10,6 @@ _TEST_DB = Path(tempfile.mkdtemp()) / "test.db"
 os.environ["DATABASE_URL"] = f"sqlite:///{_TEST_DB.as_posix()}"
 os.environ["SECRET_KEY"] = "test-secret-key-yang-cukup-panjang-untuk-hs256"
 os.environ["BCRYPT_ROUNDS"] = "4"
-# Gambar hasil upload saat tes masuk ke folder sementara, bukan backend/uploads
-os.environ["UPLOAD_DIR"] = str(_TEST_DB.parent / "uploads")
 # Tes tidak boleh mengirim notifikasi sungguhan, meskipun file kredensial asli ada
 os.environ["FIREBASE_CREDENTIALS"] = str(_TEST_DB.parent / "tidak-ada.json")
 

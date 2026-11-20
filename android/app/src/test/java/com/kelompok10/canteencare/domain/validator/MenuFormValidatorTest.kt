@@ -1,7 +1,9 @@
 package com.kelompok10.canteencare.domain.validator
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class MenuFormValidatorTest {
@@ -22,5 +24,12 @@ class MenuFormValidatorTest {
         assertEquals(0.0, MenuFormValidator.parseNonNegativeDecimal("0")!!, 0.0)
         assertNull(MenuFormValidator.parseNonNegativeDecimal("-3"))
         assertNull(MenuFormValidator.parseNonNegativeDecimal("abc"))
+    }
+
+    @Test
+    fun `url gambar opsional tapi harus http atau https`() {
+        assertTrue(MenuFormValidator.isValidImageUrl(""))
+        assertTrue(MenuFormValidator.isValidImageUrl("https://contoh.id/mie.jpg"))
+        assertFalse(MenuFormValidator.isValidImageUrl("mie.jpg"))
     }
 }

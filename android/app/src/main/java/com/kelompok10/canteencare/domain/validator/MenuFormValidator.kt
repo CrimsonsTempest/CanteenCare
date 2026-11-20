@@ -1,7 +1,7 @@
 package com.kelompok10.canteencare.domain.validator
 
 /** Kolom form menu yang bisa salah isi (selain kolom gizi). */
-enum class MenuField { NAME, PRICE, STOCK }
+enum class MenuField { NAME, PRICE, STOCK, IMAGE_URL }
 
 /** Aturan isian form menu (penjual dan admin) serta edit stok. */
 object MenuFormValidator {
@@ -22,5 +22,11 @@ object MenuFormValidator {
         val trimmed = text.trim()
         if (!DECIMAL_PATTERN.matches(trimmed)) return null
         return trimmed.replace(',', '.').toDoubleOrNull()
+    }
+
+    /** URL gambar boleh kosong; jika diisi harus diawali http:// atau https://. */
+    fun isValidImageUrl(text: String): Boolean {
+        val trimmed = text.trim()
+        return trimmed.isEmpty() || trimmed.startsWith("http://") || trimmed.startsWith("https://")
     }
 }

@@ -73,7 +73,7 @@ Target durasi sekitar 8–10 menit. Urutan ini menunjukkan ketiga peran (Admin, 
 3. Daffa menerima notifikasi "… ditolak: Bahan habis". Tunjukkan bahwa Gizi Hari Ini tidak berubah, karena pesanan ditolak tidak dihitung.
 
 ### 9. Penutup (±30 detik)
-- Tampilkan sekilas hasil tes: `pytest` (74 passed) dan `gradlew testDebugUnitTest` (BUILD SUCCESSFUL).
+- Tampilkan sekilas hasil tes: `pytest` (69 passed) dan `gradlew testDebugUnitTest` (BUILD SUCCESSFUL).
 - **Narasi:** "Logika inti diuji dengan unit test, termasuk contoh 63,7% kurang dan 152% melebihi batas."
 
 ## Tips Perekaman
