@@ -5,7 +5,6 @@ import com.kelompok10.canteencare.data.remote.dto.CreateMenuRequestDto
 import com.kelompok10.canteencare.data.remote.dto.CreateOrderRequestDto
 import com.kelompok10.canteencare.data.remote.dto.CreateSellerRequestDto
 import com.kelompok10.canteencare.data.remote.dto.FcmTokenRequestDto
-import com.kelompok10.canteencare.data.remote.dto.ImageUploadDto
 import com.kelompok10.canteencare.data.remote.dto.LoginRequestDto
 import com.kelompok10.canteencare.data.remote.dto.MenuDto
 import com.kelompok10.canteencare.data.remote.dto.MessageDto
@@ -19,15 +18,12 @@ import com.kelompok10.canteencare.data.remote.dto.StockRequestDto
 import com.kelompok10.canteencare.data.remote.dto.UpdateMenuRequestDto
 import com.kelompok10.canteencare.data.remote.dto.UserDto
 import com.kelompok10.canteencare.data.remote.dto.VendorDto
-import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
-import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -134,10 +130,4 @@ interface ApiService {
 
     @POST("admin/sellers")
     suspend fun createSeller(@Body body: CreateSellerRequestDto): SellerDto
-
-    // ---------- Upload (penjual dan admin) ----------
-    /** Dikirim sebagai multipart/form-data dengan bagian bernama "file". */
-    @Multipart
-    @POST("uploads/menu-image")
-    suspend fun uploadMenuImage(@Part file: MultipartBody.Part): ImageUploadDto
 }

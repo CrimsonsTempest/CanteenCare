@@ -22,8 +22,6 @@ htmlcov/
 .ruff_cache/
 *.db
 *.sqlite3
-# Gambar menu hasil upload (data lokal tiap laptop)
-backend/uploads/
 
 # ===== Android / Gradle =====
 .gradle/

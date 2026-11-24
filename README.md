@@ -136,10 +136,6 @@ Data demo juga berisi 13 menu, termasuk **Nasi Ayam Geprek** yang masih PENDING 
 
 Naskah lengkap video demo (semua peran dan ketiga fungsi inti) ada di [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md). Selalu jalankan `reset-demo` sebelum merekam supaya data dan tanggal contoh pesanan sesuai hari perekaman.
 
-## Gambar Menu
-
-Penjual dan admin bisa meng-upload foto menu langsung dari galeri HP lewat tombol **Pilih Foto** (PNG, JPG, atau WEBP, maksimal 2 MB). File disimpan di `backend/uploads/` pada laptop yang menjalankan server. Folder ini tidak ikut ke GitHub, jadi gambar di laptop satu tidak muncul di laptop lain.
-
 ## Troubleshooting
 
 | Masalah | Penyebab dan solusi |
